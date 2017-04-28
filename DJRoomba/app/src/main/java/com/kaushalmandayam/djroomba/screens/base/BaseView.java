@@ -1,4 +1,4 @@
-package com.example.kaushalmandayam.djroomba.screens.base;
+package com.kaushalmandayam.djroomba.screens.base;
 
 /**
  * A base view that all presenter style views must inherit from in this project.

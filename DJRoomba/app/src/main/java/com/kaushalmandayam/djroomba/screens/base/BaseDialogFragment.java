@@ -1,39 +1,38 @@
-package com.example.kaushalmandayam.djroomba.screens.base;
+package com.kaushalmandayam.djroomba.screens.base;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.kaushalmandayam.djroomba.Constants;
+import com.kaushalmandayam.djroomba.Constants;
 import com.example.kaushalmandayam.djroomba.R;
 
 import butterknife.ButterKnife;
 
 /**
- * All fragments should inherit from this class.
+ * All dialog fragments should inherit from this class.
  * <p/>
- * Created on 03/27/16.
+ * Created on 3/26/16.
  *
  * @author Kaushal Mandayam
  */
-public abstract class BaseFragment<T> extends Fragment
+public abstract class BaseDialogFragment<T> extends DialogFragment
 {
     //==============================================================================================
     // Class Properties
     //==============================================================================================
 
     protected T presenter;
-    protected Toast toast;
     protected ProgressDialog progressDialog;
-    protected View progressView;
+    protected Toast toast;
 
     //==============================================================================================
     // Lifecycle Methods
@@ -45,6 +44,15 @@ public abstract class BaseFragment<T> extends Fragment
         View rootView = inflater.inflate(getFragmentLayout(), container, false);
         ButterKnife.bind(this, rootView);
         return rootView;
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState)
+    {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NO_TITLE, R.style.DialogFragment);
+        return dialog;
     }
 
     @Override
@@ -86,21 +94,31 @@ public abstract class BaseFragment<T> extends Fragment
         toast.show();
     }
 
-    protected void showProgressDialogWithNoText()
+    protected void showProgressDialog(String message)
     {
+        View view = null;
+
         if (progressDialog == null)
         {
-            progressDialog = new ProgressDialog(getActivity());
+            progressDialog = new ProgressDialog(getContext());
             progressDialog.setIndeterminate(true);
-            progressView = LayoutInflater.from(getActivity()).inflate(R.layout.item_progressbar_no_text, null, false);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.item_progressbar, null, false);
+
+            if (message == null)
+            {
+                message = getString(R.string.please_wait);
+            }
+
+            TextView messageTextView = (TextView) view.findViewById(R.id.progressBarTextView);
+            messageTextView.setText(message);
             progressDialog.setCancelable(false);
         }
 
-        progressDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        progressDialog.show();
-        progressDialog.setContentView(progressView);
+        if (view != null)
+        {
+            progressDialog.show();
+            progressDialog.setContentView(view);
+        }
     }
 
     protected void dismissProgressDialog()

@@ -1,4 +1,4 @@
-package com.example.kaushalmandayam.djroomba.screens.base;
+package com.kaushalmandayam.djroomba.screens.base;
 
 /**
  * The base presenter class that all presenters in this project must inherit from.

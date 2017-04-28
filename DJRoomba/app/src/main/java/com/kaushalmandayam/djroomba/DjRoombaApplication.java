@@ -1,16 +1,18 @@
-package com.example.kaushalmandayam.djroomba;
+package com.kaushalmandayam.djroomba;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.multidex.MultiDexApplication;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.module.GlideModule;
-import com.example.kaushalmandayam.djroomba.Utils.MainThreadBus;
+import com.kaushalmandayam.djroomba.Utils.MainThreadBus;
+import com.kaushalmandayam.djroomba.net.DjRoombaApi;
 import com.squareup.otto.Bus;
 
 import java.io.InputStream;
@@ -32,7 +34,6 @@ public class DjRoombaApplication extends MultiDexApplication implements GlideMod
         context = getApplicationContext();
         bus = new MainThreadBus();
 
-       // todo DataManager.INSTANCE.fetchGeneralInfo();
 
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks()
         {
@@ -111,7 +112,7 @@ public class DjRoombaApplication extends MultiDexApplication implements GlideMod
     @Override
     public void registerComponents(Context context, Glide glide)
     {
-       // TODO glide.register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(LendiumAPI.getClient(false)));
-
+        glide.register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader
+                .Factory(DjRoombaApi.getClient(false)));
     }
 }

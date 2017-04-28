@@ -1,15 +1,15 @@
-package com.example.kaushalmandayam.djroomba.screens.base;
+package com.kaushalmandayam.djroomba.screens.base;
 
 import android.app.ProgressDialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TextView;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.kaushalmandayam.djroomba.Constants;
@@ -18,39 +18,33 @@ import com.example.kaushalmandayam.djroomba.R;
 import butterknife.ButterKnife;
 
 /**
- * The base class that all activities inherit from. Shared functionality can be done here.
+ * All fragments should inherit from this class.
  * <p/>
- * Created on Apr 26, 2017
+ * Created on 03/27/16.
  *
  * @author Kaushal Mandayam
  */
-public abstract class BaseActivity<T> extends AppCompatActivity
+public abstract class BaseFragment<T> extends Fragment
 {
     //==============================================================================================
     // Class Properties
     //==============================================================================================
 
     protected T presenter;
-    public Toolbar toolbar;
-    protected ActionBar actionBar;
     protected Toast toast;
     protected ProgressDialog progressDialog;
+    protected View progressView;
 
     //==============================================================================================
     // Lifecycle Methods
     //==============================================================================================
 
     @Override
-    public void setContentView(@LayoutRes int layoutResID)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        super.setContentView(layoutResID);
-        ButterKnife.bind(this);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
+        View rootView = inflater.inflate(getFragmentLayout(), container, false);
+        ButterKnife.bind(this, rootView);
+        return rootView;
     }
 
     @Override
@@ -68,6 +62,17 @@ public abstract class BaseActivity<T> extends AppCompatActivity
     }
 
     //==============================================================================================
+    // Layout Methods
+    //==============================================================================================
+
+    /**
+     * Every fragment has to inflate a layout in the onCreateView method. We have added this method to
+     * avoid duplicate all the inflate code in every fragment. You only have to return the layout to
+     * inflate in this method when extends BaseFragment.
+     */
+    protected abstract int getFragmentLayout();
+
+    //==============================================================================================
     // Class Instance Methods
     //==============================================================================================
 
@@ -77,35 +82,25 @@ public abstract class BaseActivity<T> extends AppCompatActivity
         {
             toast.cancel();
         }
-        toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+        toast = Toast.makeText(getActivity(), message, Toast.LENGTH_LONG);
         toast.show();
     }
 
-    protected void showProgressDialog(String message)
+    protected void showProgressDialogWithNoText()
     {
-        View view = null;
-
         if (progressDialog == null)
         {
-            progressDialog = new ProgressDialog(this);
+            progressDialog = new ProgressDialog(getActivity());
             progressDialog.setIndeterminate(true);
-            view = LayoutInflater.from(this).inflate(R.layout.item_progressbar, null, false);
-
-            if (message == null)
-            {
-                message = getString(R.string.please_wait);
-            }
-
-            TextView messageTextView = (TextView) view.findViewById(R.id.progressBarTextView);
-            messageTextView.setText(message);
+            progressView = LayoutInflater.from(getActivity()).inflate(R.layout.item_progressbar_no_text, null, false);
             progressDialog.setCancelable(false);
         }
 
-        if (view != null)
-        {
-            progressDialog.show();
-            progressDialog.setContentView(view);
-        }
+        progressDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        progressDialog.show();
+        progressDialog.setContentView(progressView);
     }
 
     protected void dismissProgressDialog()
@@ -114,13 +109,6 @@ public abstract class BaseActivity<T> extends AppCompatActivity
         {
             progressDialog.dismiss();
         }
-    }
-
-    protected void hideStatusBar()
-    {
-        View decorView = getWindow().getDecorView();
-        int options = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(options);
     }
 
     //==============================================================================================
