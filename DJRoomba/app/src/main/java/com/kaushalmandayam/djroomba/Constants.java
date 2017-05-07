@@ -6,5 +6,6 @@ package com.kaushalmandayam.djroomba;
 
 public class Constants
 {
-    public static String TAG = "Lendium";
+    public static String TAG = "DJRoomba";
+    public static final String CLIENT_ID = "7235a270255b421e98957199414a8e43";
 }

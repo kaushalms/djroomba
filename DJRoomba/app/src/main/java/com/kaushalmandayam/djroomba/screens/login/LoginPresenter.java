@@ -28,12 +28,12 @@ public class LoginPresenter  extends BasePresenter<LoginPresenter.LoginView>
 
     public void onCreate()
     {
-        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
-                AuthenticationResponse.Type.TOKEN,
-                REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming"});
-        AuthenticationRequest request = builder.build();
-        view.ShowLoginActivity(request);
+        //        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
+//                AuthenticationResponse.Type.TOKEN,
+//                REDIRECT_URI);
+//        builder.setScopes(new String[]{"user-read-private", "streaming"});
+//        AuthenticationRequest request = builder.build();
+//        view.ShowLoginActivity(request);
     }
 
     //==============================================================================================
@@ -43,6 +43,5 @@ public class LoginPresenter  extends BasePresenter<LoginPresenter.LoginView>
     public interface LoginView extends BaseView
     {
         void ShowLoginActivity(AuthenticationRequest request);
-
     }
 }

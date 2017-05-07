@@ -6,6 +6,13 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.kaushalmandayam.djroomba.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
+import com.kaushalmandayam.djroomba.models.parties;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -31,7 +38,9 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     // Request code that will be used to verify if the result comes from correct activity
     // Can be any integer
     private static final int REQUEST_CODE = 1337;
-    private Player mPlayer;
+    private Player player;
+    private DatabaseReference mCommentsReference;
+    private DatabaseReference mPostReference;
 
     //==============================================================================================
     // Life-cycle Methods
@@ -49,11 +58,44 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         attachPresenter(new LoginPresenter(), this);
+        mPostReference = FirebaseDatabase.getInstance().getReference()
+                .child("parties");
+//        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+//        DataManager.INSTANCE.setmDatabase(database);
+//        ValueEventListener postListener = new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                // Get Post object and use the values to update the UI
+//                parties parties = dataSnapshot.getValue(parties.class);
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                // Getting Post failed, log a message
+//           //     Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+//                // ...
+//            }
+//        };
+       mPostReference.addValueEventListener( new ValueEventListener()
+                                             {
+                                                 @Override
+                                                 public void onDataChange(DataSnapshot dataSnapshot)
+                                                 {
+                                                     // Get Post object and use the values to update the UI
+                                                     parties party = dataSnapshot.getValue(parties.class);
+                                                 }
+
+                                                 @Override
+                                                 public void onCancelled(DatabaseError databaseError)
+                                                 {
+                                                     // Getting Post failed, log a message
+                                                     //     Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+                                                     // ...
+                                                 }
+                                             });
+
 
         presenter.onCreate();
-
-
-
     }
 
     @Override
@@ -73,15 +115,17 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
                     @Override
                     public void onInitialized(SpotifyPlayer spotifyPlayer)
                     {
+                        AudioPlayerManager.INSTANCE.setPlayer(player);
 
-                        mPlayer.addConnectionStateCallback(LoginActivity.this);
-                        mPlayer.addNotificationCallback(LoginActivity.this);
+                        //TODO move call backs to different activity
+                        player.addConnectionStateCallback(LoginActivity.this);
+                        player.addNotificationCallback(LoginActivity.this);
                     }
 
                     @Override
                     public void onError(Throwable throwable)
                     {
-                        Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
+                        Log.e("LoginActivity", "Could not initialize player: " + throwable.getMessage());
                     }
                 });
             }

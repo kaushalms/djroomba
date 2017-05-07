@@ -6,6 +6,7 @@ package com.kaushalmandayam.djroomba.managers;
  * Created by kaushalmandayam on 4/29/17.
  */
 
-public class LoginManager
+public enum LoginManager
 {
+    INSTANCE;
 }
