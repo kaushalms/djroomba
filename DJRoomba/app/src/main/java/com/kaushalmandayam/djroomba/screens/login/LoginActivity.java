@@ -14,6 +14,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.models.parties;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
+import com.kaushalmandayam.djroomba.screens.login.LoginPresenter.LoginView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -25,13 +26,15 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import butterknife.OnClick;
+
 import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
 
 /**
  * Created by kaushalmandayam on 4/29/17.
  */
 
-public class LoginActivity extends BaseActivity<LoginPresenter> implements LoginPresenter.LoginView,
+public class LoginActivity extends BaseActivity<LoginPresenter> implements LoginView,
         ConnectionStateCallback, SpotifyPlayer.NotificationCallback
 {
 
@@ -43,7 +46,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     private DatabaseReference mPostReference;
 
     //==============================================================================================
-    // Life-cycle Methods
+    // Static Methods
     //==============================================================================================
 
     public static void start(Context context)
@@ -51,6 +54,10 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         Intent starter = new Intent(context, LoginActivity.class);
         context.startActivity(starter);
     }
+
+    //==============================================================================================
+    // Life-cycle Methods
+    //==============================================================================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -60,22 +67,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         attachPresenter(new LoginPresenter(), this);
         mPostReference = FirebaseDatabase.getInstance().getReference()
                 .child("parties");
-//        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-//        DataManager.INSTANCE.setmDatabase(database);
-//        ValueEventListener postListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                // Get Post object and use the values to update the UI
-//                parties parties = dataSnapshot.getValue(parties.class);
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                // Getting Post failed, log a message
-//           //     Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
-//                // ...
-//            }
-//        };
+
        mPostReference.addValueEventListener( new ValueEventListener()
                                              {
                                                  @Override
@@ -95,7 +87,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
                                              });
 
 
-        presenter.onCreate();
+
     }
 
     @Override
@@ -183,5 +175,16 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     public void ShowLoginActivity(AuthenticationRequest request)
     {
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+    }
+
+
+    //================================================================================
+    // Button Click Methods
+    //================================================================================
+
+    @OnClick(R.id.spotifyLoginButton)
+    public void backButtonPressed()
+    {
+        presenter.authenticateSpotifyLogin();
     }
 }
