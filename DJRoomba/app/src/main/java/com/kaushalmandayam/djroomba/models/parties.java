@@ -7,7 +7,7 @@ import java.util.List;
  * Created by kaushalmandayam on 5/5/17.
  */
 
-public class parties
+public class Parties
 {
     List<Party> parties = new ArrayList<>();
 }

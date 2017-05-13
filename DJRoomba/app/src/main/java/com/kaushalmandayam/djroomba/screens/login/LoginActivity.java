@@ -12,7 +12,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
-import com.kaushalmandayam.djroomba.models.parties;
+import com.kaushalmandayam.djroomba.models.Parties;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.kaushalmandayam.djroomba.screens.login.LoginPresenter.LoginView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -66,7 +66,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         setContentView(R.layout.activity_login);
         attachPresenter(new LoginPresenter(), this);
         mPostReference = FirebaseDatabase.getInstance().getReference()
-                .child("parties");
+                .child("Parties");
 
        mPostReference.addValueEventListener( new ValueEventListener()
                                              {
@@ -74,7 +74,11 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
                                                  public void onDataChange(DataSnapshot dataSnapshot)
                                                  {
                                                      // Get Post object and use the values to update the UI
-                                                     parties party = dataSnapshot.getValue(parties.class);
+                                                     for (DataSnapshot messageSnapshot: dataSnapshot.getChildren()) {
+                                                         Parties parties = messageSnapshot.getValue(Parties.class);
+                                                     }
+
+
                                                  }
 
                                                  @Override
