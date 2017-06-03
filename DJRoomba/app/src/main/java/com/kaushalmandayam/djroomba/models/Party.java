@@ -1,7 +1,11 @@
 package com.kaushalmandayam.djroomba.models;
 
+import com.spotify.sdk.android.player.Metadata;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kaushalmandayam on 5/5/17.
@@ -17,7 +21,7 @@ public class Party
     public String id;
     public String password;
     public boolean locked;
-    public boolean name;
-    public List<track> tracks= new ArrayList<>();
+    public String name;
+    public Map<String, track> tracks= new HashMap<>();
 
 }
