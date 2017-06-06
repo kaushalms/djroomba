@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import com.example.kaushalmandayam.djroomba.R;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
@@ -26,6 +27,8 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     View overlay;
     @BindView(R.id.sheet)
     View sheet;
+    @BindView(R.id.partyListLayout)
+    RelativeLayout partyListLayout;
 
     //==============================================================================================
     // static Methods
@@ -46,6 +49,8 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_party_list);
+        sheet.setVisibility(View.GONE);
+       // FabTransformation.with(fab).setOverlay(overlay).tr(sheet);
         attachPresenter(new PartyListPresenter(), this);
     }
 
@@ -59,7 +64,7 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     }
 
     @OnClick(R.id.overlay)
-    void onClickOverlay() {
+    void onClickBackground() {
         if (fab.getVisibility() != View.VISIBLE) {
             FabTransformation.with(fab).setOverlay(overlay).transformFrom(sheet);
         }
