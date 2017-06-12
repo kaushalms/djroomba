@@ -7,6 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <include layout="@layout/toolbar_search"/>
+
     <View
         android:id="@+id/overlay"
         android:layout_width="match_parent"
@@ -145,4 +147,12 @@
         </android.support.v7.widget.CardView>
 
     </io.codetail.widget.RevealFrameLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/trackTextView"
+        android:textColor="@color/black">
+
+    </TextView>
 </RelativeLayout>
