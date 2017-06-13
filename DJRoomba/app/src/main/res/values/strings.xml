@@ -3,4 +3,12 @@
     <string name="please_wait">Please wait</string>
     <string name="search">Search</string>
     <string name="path_search">search path</string>
+    <string name="cancel">CANCEL</string>
+    <string name="submit">SUBMIT</string>
+    <string name="describe_music">You could describe th kind of music you are looking for</string>
+    <string name="title">Description (Optional)</string>
+    <string name="password_protected">Password Protected</string>
+    <string name="party_name">Party Name</string>
+    <string name="track_label">Track :  </string>
+    <string name="artist_label">Artist :  </string>
 </resources>
