@@ -1,7 +1,6 @@
 package com.kaushalmandayam.djroomba.managers;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.kaushalmandayam.djroomba.models.Party;
 
 /**
  * Created by kaushalmandayam on 5/4/17.
@@ -11,48 +10,15 @@ public enum PartyManager
 {
     INSTANCE;
 
-    private String partyName;
-    private String partyDescription;
-    private boolean isPasswordProtected;
-    private List<Integer> partyPlayListSongs = new ArrayList<>();
+    private Party party;
 
-    public String getPartyName()
+    public Party getParty()
     {
-        return partyName;
+        return party;
     }
 
-    public void setPartyName(String partyName)
+    public void setParty(Party party)
     {
-        this.partyName = partyName;
-    }
-
-    public String getPartyDescription()
-    {
-        return partyDescription;
-    }
-
-    public void setPartyDescription(String partyDescription)
-    {
-        this.partyDescription = partyDescription;
-    }
-
-    public boolean isPasswordProtected()
-    {
-        return isPasswordProtected;
-    }
-
-    public void setPasswordProtected(boolean passwordProtected)
-    {
-        isPasswordProtected = passwordProtected;
-    }
-
-    public List<Integer> getPartyPlayListSongs()
-    {
-        return partyPlayListSongs;
-    }
-
-    public void setPartyPlayListSongs(List<Integer> partyPlayListSongs)
-    {
-        this.partyPlayListSongs = partyPlayListSongs;
+        this.party = party;
     }
 }

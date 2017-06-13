@@ -13,7 +13,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
-import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListActivity;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
@@ -39,15 +38,16 @@ import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
  */
 
 public class LoginActivity extends BaseActivity<LoginPresenter> implements LoginView,
-        ConnectionStateCallback, SpotifyPlayer.NotificationCallback
+                                                                            ConnectionStateCallback,
+                                                                            SpotifyPlayer.NotificationCallback
 {
     // Request code that will be used to verify if the result comes from correct activity
     // Can be any integer
     private static final int REQUEST_CODE = 1337;
+    private static final String TAG = "LoginActivity";
 
     private Player player;
-    private DatabaseReference mCommentsReference;
-    private DatabaseReference mPostReference;
+    private DatabaseReference partyDatabaseReference;
 
     //==============================================================================================
     // Static Methods
@@ -69,10 +69,10 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         attachPresenter(new LoginPresenter(), this);
-        mPostReference = FirebaseDatabase.getInstance().getReference()
+        partyDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("parties");
 
-        mPostReference.addValueEventListener(new ValueEventListener()
+        partyDatabaseReference.addValueEventListener(new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
@@ -80,18 +80,15 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
                 // Get Post object and use the values to update the UI
                 for (DataSnapshot messageSnapshot : dataSnapshot.getChildren())
                 {
-                    Party party = messageSnapshot.getValue(Party.class);
+                    // TODO read and display all the parties
+                   // Party party = messageSnapshot.getValue(Party.class);
                 }
-
-
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError)
             {
-                // Getting Post failed, log a message
-                //     Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
-                // ...
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
             }
         });
 
@@ -199,7 +196,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     //================================================================================
 
     @OnClick(R.id.spotifyLoginButton)
-    public void logiButtonPressed()
+    public void loginButtonPressed()
     {
         presenter.onAuthenticateSpotifyLoginClicked();
     }

@@ -30,6 +30,7 @@ public enum UserManager
         this.userToken = userToken;
     }
 
+    // Spotify user ID
     public void setUserId(String userId)
     {
         this.userId = userId;

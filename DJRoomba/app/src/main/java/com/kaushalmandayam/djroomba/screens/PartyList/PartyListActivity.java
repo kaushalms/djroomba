@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
 
 import com.example.kaushalmandayam.djroomba.R;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListPresenter.PartyListView;
@@ -16,7 +19,7 @@ import butterknife.BindView;
 import butterknife.OnClick;
 
 /**
- * TODO: Class Description
+ * Screen to display list of parties and create new parties
  * <p>
  * Created on 6/13/17.
  *
@@ -25,12 +28,19 @@ import butterknife.OnClick;
 
 public class PartyListActivity extends BaseActivity<PartyListPresenter> implements PartyListView
 {
+    private static final String TAG = "PartyListActivity";
     @BindView(R.id.fab)
     FloatingActionButton fab;
     @BindView(R.id.overlay)
     View overlay;
     @BindView(R.id.sheet)
     View sheet;
+    @BindView(R.id.partyNameEditText)
+    EditText partyNameEditText;
+    @BindView(R.id.partyDescriptionEditText)
+    EditText partyDescriptionEditText;
+    @BindView(R.id.passwordCheckBox)
+    CheckBox passwordCheckBox;
 
     //==============================================================================================
     // static Methods
@@ -90,4 +100,22 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
         TrackListActivity.start(this);
     }
 
+    @OnClick(R.id.submitButton)
+    void onSubmitButtonClicked()
+    {
+        presenter.onSubmitButtonClicked(partyNameEditText.toString(),
+                                        partyDescriptionEditText.toString(),
+                                        passwordCheckBox.isSelected());
+    }
+
+
+    //==============================================================================================
+    // Life-cycle Methods
+    //==============================================================================================
+
+    @Override
+    public void showPartyAdded()
+    {
+        Log.d(TAG, "showPartyAdded: Success");
+    }
 }

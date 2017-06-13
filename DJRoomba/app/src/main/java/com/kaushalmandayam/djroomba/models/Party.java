@@ -1,11 +1,7 @@
 package com.kaushalmandayam.djroomba.models;
 
-import com.spotify.sdk.android.player.Metadata;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by kaushalmandayam on 5/5/17.
@@ -13,15 +9,70 @@ import java.util.Map;
 
 public class Party
 {
-    public boolean active;
-    public String desc;
-    public String hostId;
-    public String hostImg;
-    public String hostName;
-    public String id;
-    public String password;
-    public boolean locked;
-    public String name;
-    public Map<String, track> tracks= new HashMap<>();
+    private String partyName;
+    private String partyDescription;
+    private boolean isPasswordProtected;
+    private String partyHostId;
+    private String partyId;
+    private List<Integer> partyPlayListSongs = new ArrayList<>();
 
+    public String getPartyName()
+    {
+        return partyName;
+    }
+
+    public void setPartyName(String partyName)
+    {
+        this.partyName = partyName;
+    }
+
+    public String getPartyDescription()
+    {
+        return partyDescription;
+    }
+
+    public void setPartyDescription(String partyDescription)
+    {
+        this.partyDescription = partyDescription;
+    }
+
+    public boolean isPasswordProtected()
+    {
+        return isPasswordProtected;
+    }
+
+    public void setPasswordProtected(boolean passwordProtected)
+    {
+        isPasswordProtected = passwordProtected;
+    }
+
+    public List<Integer> getPartyPlayListSongs()
+    {
+        return partyPlayListSongs;
+    }
+
+    public void setPartyPlayListSongs(List<Integer> partyPlayListSongs)
+    {
+        this.partyPlayListSongs = partyPlayListSongs;
+    }
+
+    public String getPartyId()
+    {
+        return partyId;
+    }
+
+    public void setPartyId(String partyId)
+    {
+        this.partyId = partyId;
+    }
+
+    public String getPartyHostId()
+    {
+        return partyHostId;
+    }
+
+    public void setPartyHostId(String partyHostId)
+    {
+        this.partyHostId = partyHostId;
+    }
 }
