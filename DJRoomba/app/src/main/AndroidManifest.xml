@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.example.kaushalmandayam.djroomba">
+<manifest package="com.example.kaushalmandayam.djroomba"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:name="android.support.multidex.MultiDexApplication"
@@ -17,11 +17,10 @@
             android:screenOrientation="portrait">
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
 
         </activity>
 
@@ -29,17 +28,18 @@
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <activity
-            android:name="com.kaushalmandayam.djroomba.screens.partyList.PartyListActivity"
+            android:name="com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity"
             android:screenOrientation="portrait">
-
-
         </activity>
 
+        <activity
+            android:name="com.kaushalmandayam.djroomba.screens.PartyList.PartyListActivity"
+            android:screenOrientation="portrait">
+        </activity>
 
     </application>
-
 
 </manifest>

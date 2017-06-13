@@ -1,4 +1,4 @@
-package com.kaushalmandayam.djroomba.screens.partyList;
+package com.kaushalmandayam.djroomba.screens.TrackList;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -21,7 +21,7 @@ import retrofit.RetrofitError;
  * Created by kaushalmandayam on 5/7/17.
  */
 
-class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyListView>
+class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
 {
     //==============================================================================================
     // Activity/public Methods
@@ -77,7 +77,7 @@ class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyListView>
     // View Interface
     //==============================================================================================
 
-    public interface PartyListView extends BaseView
+    public interface TrackListView extends BaseView
     {
         void populateTrack(List<Track> tracks);
     }

@@ -1,9 +1,8 @@
-package com.kaushalmandayam.djroomba.screens.partyList;
+package com.kaushalmandayam.djroomba.screens.TrackList;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -17,9 +16,7 @@ import android.widget.TextView;
 
 import com.example.kaushalmandayam.djroomba.R;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
-import com.kaushalmandayam.djroomba.screens.partyList.PartyListPresenter.PartyListView;
-import com.konifar.fab_transformation.FabTransformation;
-
+import com.kaushalmandayam.djroomba.screens.TrackList.TrackListPresenter.TrackListView;
 
 import java.util.List;
 
@@ -32,19 +29,13 @@ import kaaes.spotify.webapi.android.models.Track;
  * Created by kaushalmandayam on 5/7/17.
  */
 
-public class PartyListActivity extends BaseActivity<PartyListPresenter> implements PartyListView
+public class TrackListActivity extends BaseActivity<TrackListPresenter> implements TrackListView
 {
 
-    @BindView(R.id.fab)
-    FloatingActionButton fab;
     @BindView(R.id.searchTextView)
     TextView searchTextView;
     @BindView(R.id.searchEditText)
     EditText searchEditText;
-    @BindView(R.id.overlay)
-    View overlay;
-    @BindView(R.id.sheet)
-    View sheet;
     @BindView(R.id.partyListLayout)
     RelativeLayout partyListLayout;
     @BindView(R.id.musicNoteImageView)
@@ -64,7 +55,7 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
 
     public static void start(Context context)
     {
-        Intent starter = new Intent(context, PartyListActivity.class);
+        Intent starter = new Intent(context, TrackListActivity.class);
         context.startActivity(starter);
     }
 
@@ -76,9 +67,9 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_party_list);
-        sheet.setVisibility(View.GONE);
-        attachPresenter(new PartyListPresenter(), this);
+        setContentView(R.layout.activity_track_list);
+        attachPresenter(new TrackListPresenter(), this);
+        setupSearchBarView();
         setupTrackAdapter();
         searchEditText.addTextChangedListener(new TextWatcher()
         {
@@ -135,35 +126,6 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     //==============================================================================================
     // onClick methods
     //==============================================================================================
-
-    @Override
-    public void onBackPressed()
-    {
-        if (fab.getVisibility() != View.VISIBLE)
-        {
-            FabTransformation.with(fab).setOverlay(overlay).transformFrom(sheet);
-            return;
-        }
-        super.onBackPressed();
-    }
-
-    @OnClick(R.id.overlay)
-    void onClickBackground()
-    {
-        if (fab.getVisibility() != View.VISIBLE)
-        {
-            FabTransformation.with(fab).setOverlay(overlay).transformFrom(sheet);
-        }
-    }
-
-    @OnClick(R.id.fab)
-    void onClickFab()
-    {
-        if (fab.getVisibility() == View.VISIBLE)
-        {
-            FabTransformation.with(fab).setOverlay(overlay).transformTo(sheet);
-        }
-    }
 
     @OnClick(R.id.searchTextView)
     void onClickToolbar()

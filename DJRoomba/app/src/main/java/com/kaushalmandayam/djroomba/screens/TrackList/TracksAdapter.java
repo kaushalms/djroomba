@@ -1,4 +1,4 @@
-package com.kaushalmandayam.djroomba.screens.partyList;
+package com.kaushalmandayam.djroomba.screens.TrackList;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

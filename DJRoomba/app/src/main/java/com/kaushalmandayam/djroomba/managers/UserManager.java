@@ -1,12 +1,11 @@
 package com.kaushalmandayam.djroomba.managers;
 
-import com.spotify.sdk.android.player.Player;
-
 /**
  * Created by Kaushal on 6/5/2017.
  */
 
-public enum UserManager {
+public enum UserManager
+{
 
     //==============================================================================================
     // Class Properties
@@ -31,11 +30,13 @@ public enum UserManager {
         this.userToken = userToken;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(String userId)
+    {
         this.userId = userId;
     }
 
-    public String getUserId() {
+    public String getUserId()
+    {
         return userId;
     }
 }
