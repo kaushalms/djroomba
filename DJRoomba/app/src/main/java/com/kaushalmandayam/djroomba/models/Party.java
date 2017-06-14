@@ -1,7 +1,7 @@
 package com.kaushalmandayam.djroomba.models;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by kaushalmandayam on 5/5/17.
@@ -9,12 +9,13 @@ import java.util.List;
 
 public class Party
 {
-    private String partyName;
-    private String partyDescription;
-    private boolean isPasswordProtected;
-    private String partyHostId;
-    private String partyId;
-    private List<Integer> partyPlayListSongs = new ArrayList<>();
+    public String partyName;
+    public String partyDescription;
+    public boolean isPasswordProtected;
+    public String partyHostId;
+    public String partyId;
+    public Map<String, String> partyPlayListSongs = new HashMap<>();
+
 
     public String getPartyName()
     {
@@ -46,12 +47,12 @@ public class Party
         isPasswordProtected = passwordProtected;
     }
 
-    public List<Integer> getPartyPlayListSongs()
+    public Map<String, String>  getPartyPlayListSongs()
     {
         return partyPlayListSongs;
     }
 
-    public void setPartyPlayListSongs(List<Integer> partyPlayListSongs)
+    public void setPartyPlayListSongs(Map<String, String> partyPlayListSongs)
     {
         this.partyPlayListSongs = partyPlayListSongs;
     }
@@ -74,5 +75,19 @@ public class Party
     public void setPartyHostId(String partyHostId)
     {
         this.partyHostId = partyHostId;
+    }
+
+
+    public Map<String,Object> toMap()
+    {
+        HashMap<String, Object> partyValue = new HashMap<>();
+        partyValue.put("partyName", partyName);
+        partyValue.put("partyDescription", partyDescription);
+        partyValue.put("isPassword_Protected", isPasswordProtected);
+        partyValue.put("partyHostId", partyHostId);
+        partyValue.put("partyId", partyId);
+        partyValue.put("partyplaylist", partyPlayListSongs);
+
+        return partyValue;
     }
 }

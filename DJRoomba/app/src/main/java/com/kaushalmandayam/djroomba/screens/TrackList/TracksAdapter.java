@@ -36,12 +36,6 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TrackViewH
     // Constructor
     //==============================================================================================
 
-    public TracksAdapter(List<Track> tracks)
-    {
-        this.tracks.clear();
-        this.tracks = tracks;
-    }
-
     public TracksAdapter()
     {
         // empty constructor

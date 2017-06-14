@@ -6,15 +6,9 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.kaushalmandayam.djroomba.R;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListActivity;
-import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.kaushalmandayam.djroomba.screens.login.LoginPresenter.LoginView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -45,9 +39,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     // Can be any integer
     private static final int REQUEST_CODE = 1337;
     private static final String TAG = "LoginActivity";
-
     private Player player;
-    private DatabaseReference partyDatabaseReference;
 
     //==============================================================================================
     // Static Methods
@@ -69,32 +61,10 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         attachPresenter(new LoginPresenter(), this);
-        partyDatabaseReference = FirebaseDatabase.getInstance().getReference()
-                .child("parties");
 
-        partyDatabaseReference.addValueEventListener(new ValueEventListener()
+        if (PreferenceUtils.getUserLoggedInStatus(this))
         {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                // Get Post object and use the values to update the UI
-                for (DataSnapshot messageSnapshot : dataSnapshot.getChildren())
-                {
-                    // TODO read and display all the parties
-                   // Party party = messageSnapshot.getValue(Party.class);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
-            }
-        });
-
-        if (PreferenceUtils.getUserLoggedInStatus(this) == true)
-        {
-            TrackListActivity.start(this);
+            PartyListActivity.start(this);
         }
     }
 

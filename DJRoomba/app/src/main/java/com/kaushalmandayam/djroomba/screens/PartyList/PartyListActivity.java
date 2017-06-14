@@ -4,16 +4,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.example.kaushalmandayam.djroomba.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListPresenter.PartyListView;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.konifar.fab_transformation.FabTransformation;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -41,6 +51,11 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     EditText partyDescriptionEditText;
     @BindView(R.id.passwordCheckBox)
     CheckBox passwordCheckBox;
+    @BindView(R.id.partyListRecyclerView)
+    RecyclerView partyListRecyclerView;
+
+    private PartyListAdapter partyListAdapter;
+    private DatabaseReference partyDatabaseReference;
 
     //==============================================================================================
     // static Methods
@@ -63,7 +78,26 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
         setContentView(R.layout.activity_party_list);
         sheet.setVisibility(View.GONE);
         attachPresenter(new PartyListPresenter(), this);
+        partyDatabaseReference = FirebaseDatabase.getInstance().getReference()
+                .child("parties");
+
+        partyDatabaseReference.addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                presenter.savePartyMatadata(dataSnapshot);
+                setupPartyAdapter();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+            }
+        });
     }
+
 
     @Override
     public void onBackPressed()
@@ -103,19 +137,37 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     @OnClick(R.id.submitButton)
     void onSubmitButtonClicked()
     {
-        presenter.onSubmitButtonClicked(partyNameEditText.toString(),
-                                        partyDescriptionEditText.toString(),
+        presenter.onSubmitButtonClicked(partyNameEditText.getText().toString(),
+                                        partyDescriptionEditText.getText().toString(),
                                         passwordCheckBox.isSelected());
     }
 
 
     //==============================================================================================
-    // Life-cycle Methods
+    // view implementations
+    //==============================================================================================
+
+    private void setupPartyAdapter()
+    {
+        partyListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        partyListAdapter = new PartyListAdapter();
+        partyListRecyclerView.setAdapter(partyListAdapter);
+        presenter.onAdapterViewSet();
+    }
+
+    //==============================================================================================
+    // view implementations
     //==============================================================================================
 
     @Override
     public void showPartyAdded()
     {
         Log.d(TAG, "showPartyAdded: Success");
+    }
+
+    @Override
+    public void showPartyList(List<Party> parties)
+    {
+        partyListAdapter.setData(parties);
     }
 }
