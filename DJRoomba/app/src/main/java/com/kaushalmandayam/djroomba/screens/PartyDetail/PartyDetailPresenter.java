@@ -1,22 +1,24 @@
 package com.kaushalmandayam.djroomba.screens.PartyDetail;
 
+
+import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.UserManager;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.base.BasePresenter;
 import com.kaushalmandayam.djroomba.screens.base.BaseView;
-import com.spotify.sdk.android.player.Spotify;
+import com.spotify.sdk.android.player.Error;
+import com.spotify.sdk.android.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
-import kaaes.spotify.webapi.android.models.TracksPager;
 import retrofit.RetrofitError;
 
 /**
@@ -61,10 +63,38 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
                 }
             });
         }
-        catch (Error error)
+        catch (RetrofitError error)
         {
             Log.d("Spotify retrofit error", "getTracks: " + error.getMessage());
         }
+    }
+
+    public void onPlayClicked(Track track)
+    {
+        String songUri = track.uri;
+        AudioPlayerManager.INSTANCE.getPlayer().playUri(operationCallback, songUri, 0, 0);
+    }
+
+    private final Player.OperationCallback operationCallback = new Player.OperationCallback()
+    {
+        @Override
+        public void onSuccess()
+        {
+            Log.d("Spotify player", "onSuccess: OK!");
+        }
+
+        @Override
+        public void onError(Error error)
+        {
+            Log.d("Spotify player", "Failed");
+        }
+
+
+    };
+
+    public void onPauseClicked()
+    {
+        AudioPlayerManager.INSTANCE.getPlayer().pause(operationCallback);
     }
 
     //==============================================================================================

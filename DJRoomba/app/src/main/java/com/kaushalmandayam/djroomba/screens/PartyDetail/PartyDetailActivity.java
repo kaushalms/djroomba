@@ -84,13 +84,13 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
             @Override
             public void onPlayClicked(Track track)
             {
-
+                presenter.onPlayClicked(track);
             }
 
             @Override
             public void onPauseClicked()
             {
-
+                presenter.onPauseClicked();
             }
         });
         playlistRecyclerView.setAdapter(playListAdapter);
