@@ -7,9 +7,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <include
-        android:id="@+id/searchToolbar"
-        layout="@layout/toolbar_search" />
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary"
+        android:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar">
+
+    </android.support.v7.widget.Toolbar>
 
     <View
         android:id="@+id/overlay"
@@ -21,9 +26,10 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/partyListRecyclerView"
-        android:layout_below="@+id/searchToolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginTop="20dp">
 
     </android.support.v7.widget.RecyclerView>
 
@@ -89,16 +95,16 @@
                         android:id="@+id/passwordCheckBox"
                         android:layout_width="20dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_gravity="center"
+                        android:layout_weight="1"
                         android:backgroundTint="@color/accent"
                         android:buttonTint="@color/accent" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="5"
                         android:layout_gravity="center"
+                        android:layout_weight="5"
                         android:text="@string/password_protected"
                         android:textColor="@color/black"
                         android:textSize="17sp" />

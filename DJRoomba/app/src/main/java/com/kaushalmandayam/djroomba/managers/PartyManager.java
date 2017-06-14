@@ -1,6 +1,8 @@
 package com.kaushalmandayam.djroomba.managers;
 
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.kaushalmandayam.djroomba.models.Party;
 
 import java.util.HashMap;
@@ -13,16 +15,25 @@ import java.util.Map;
 
 public enum PartyManager
 {
+    //==============================================================================================
+    // Class properties
+    //==============================================================================================
+
     INSTANCE;
 
     private Party party;
+    private DatabaseReference partyNodeReference;
+    private Map<String, Party> partyMap = new HashMap<>();
+
+    //==============================================================================================
+    // Class Instance Methods
+    //==============================================================================================
+
 
     public Map<String, Party> getPartyMap()
     {
         return partyMap;
     }
-
-    Map<String, Party> partyMap = new HashMap<>();
 
     public Party getParty()
     {
@@ -48,5 +59,13 @@ public enum PartyManager
         String key = partyDataSnapShot.getKey();
         Party party = partyDataSnapShot.getValue(Party.class);
         partyMap.put(key, party);
+    }
+
+    public void updateParty(Party party)
+    {
+        partyNodeReference = FirebaseDatabase.getInstance()
+                                                .getReference()
+                                                .child("parties/" + party.getPartyId());
+        partyNodeReference.setValue(party);
     }
 }

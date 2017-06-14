@@ -15,6 +15,7 @@ public enum UserManager
 
     private String userToken;
     private String userId;
+    private String userImageUrl;
 
     //==============================================================================================
     // Class Instance Methods
@@ -39,5 +40,15 @@ public enum UserManager
     public String getUserId()
     {
         return userId;
+    }
+
+    public void setUserImageUrl(String userImageUrl)
+    {
+        this.userImageUrl = userImageUrl;
+    }
+
+    public String getUserImageUrl()
+    {
+        return userImageUrl;
     }
 }

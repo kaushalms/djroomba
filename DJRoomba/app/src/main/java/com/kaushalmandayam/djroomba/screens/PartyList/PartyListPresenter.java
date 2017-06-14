@@ -24,8 +24,15 @@ import java.util.Map;
 
 public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyListView>
 {
+    //==============================================================================================
+    // Class properties
+    //==============================================================================================
+
     private DatabaseReference partyDatabaseReference;
-    private Map<String, Party> partyMap = new HashMap<>();
+
+    //==============================================================================================
+    // Class Instance Methods
+    //==============================================================================================
 
     public void onSubmitButtonClicked(String partyName, String partyDesctiption, boolean isPasswordProtected)
     {
@@ -39,6 +46,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
         party.setPasswordProtected(isPasswordProtected);
         party.setPartyHostId(UserManager.INSTANCE.getUserId());
         party.setPartyId(partyId);
+        party.setImageUrl(UserManager.INSTANCE.getUserImageUrl());
 
         // Convert party model to map and add to firebase
         Map<String, Object> partyValues = party.toMap();
@@ -62,6 +70,10 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
     {
         PartyManager.INSTANCE.savePartyMataData(dataSnapshot);
     }
+
+    //==============================================================================================
+    // View Interface
+    //==============================================================================================
 
     public interface PartyListView extends BaseView
     {

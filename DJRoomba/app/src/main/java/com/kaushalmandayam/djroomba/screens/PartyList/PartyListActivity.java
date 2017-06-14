@@ -18,8 +18,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.screens.PartyDetail.PartyDetailActivity;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListPresenter.PartyListView;
-import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.konifar.fab_transformation.FabTransformation;
 
@@ -55,7 +55,6 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     RecyclerView partyListRecyclerView;
 
     private PartyListAdapter partyListAdapter;
-    private DatabaseReference partyDatabaseReference;
 
     //==============================================================================================
     // static Methods
@@ -78,7 +77,7 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
         setContentView(R.layout.activity_party_list);
         sheet.setVisibility(View.GONE);
         attachPresenter(new PartyListPresenter(), this);
-        partyDatabaseReference = FirebaseDatabase.getInstance().getReference()
+        DatabaseReference partyDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("parties");
 
         partyDatabaseReference.addValueEventListener(new ValueEventListener()
@@ -128,12 +127,6 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
         }
     }
 
-    @OnClick(R.id.searchTextView)
-    void onSearchButtonClicked()
-    {
-        TrackListActivity.start(this);
-    }
-
     @OnClick(R.id.submitButton)
     void onSubmitButtonClicked()
     {
@@ -144,13 +137,20 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
 
 
     //==============================================================================================
-    // view implementations
+    // Class instance methods
     //==============================================================================================
 
     private void setupPartyAdapter()
     {
         partyListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        partyListAdapter = new PartyListAdapter();
+        partyListAdapter = new PartyListAdapter(new PartyListAdapter.PartyListAdapterListener()
+        {
+            @Override
+            public void onPartyClicked(Party party)
+            {
+               PartyDetailActivity.start(PartyListActivity.this, party);
+            }
+        });
         partyListRecyclerView.setAdapter(partyListAdapter);
         presenter.onAdapterViewSet();
     }

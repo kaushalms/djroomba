@@ -40,6 +40,11 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity
+            android:name="com.kaushalmandayam.djroomba.screens.PartyDetail.PartyDetailActivity"
+            android:screenOrientation="portrait">
+        </activity>
+
     </application>
 
 </manifest>

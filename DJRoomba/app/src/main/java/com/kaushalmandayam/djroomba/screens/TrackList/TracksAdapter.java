@@ -4,15 +4,19 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.kaushalmandayam.djroomba.R;
+import com.kaushalmandayam.djroomba.managers.PartyManager;
+import com.kaushalmandayam.djroomba.models.Party;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import kaaes.spotify.webapi.android.models.Track;
 
 /**
@@ -31,14 +35,17 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TrackViewH
     //==============================================================================================
 
     private List<Track> tracks = new ArrayList<>();
+    private Party party;
+    private TrackListAdapterListener listener;
 
     //==============================================================================================
     // Constructor
     //==============================================================================================
 
-    public TracksAdapter()
+    public TracksAdapter(Party party, TrackListAdapterListener listener)
     {
-        // empty constructor
+        this.party = party;
+        this.listener = listener;
     }
 
     public void setData(List<Track> tracks)
@@ -90,6 +97,8 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TrackViewH
         @BindView(R.id.artistTextView)
         TextView artistTextView;
 
+        private Track track;
+
         public TrackViewHolder(View itemView)
         {
             super(itemView);
@@ -98,6 +107,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TrackViewH
 
         public void load(Track track)
         {
+            this.track = track;
             trackTextView.setText(getFormattedString(track.name));
             artistTextView.setText(getArtistNames(track));
         }
@@ -122,5 +132,20 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TrackViewH
 
             return artistName;
         }
+
+        @OnClick(R.id.addButton)
+        void onAddButtonClicked()
+        {
+            listener.onPartyClicked(party, track);
+        }
+    }
+
+    //==============================================================================================
+    // Adapter listener Interface
+    //==============================================================================================
+
+    public interface TrackListAdapterListener
+    {
+        void onPartyClicked(Party party, Track track);
     }
 }

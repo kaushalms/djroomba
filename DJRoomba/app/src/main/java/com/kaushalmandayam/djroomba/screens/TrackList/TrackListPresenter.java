@@ -3,7 +3,9 @@ package com.kaushalmandayam.djroomba.screens.TrackList;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.managers.UserManager;
+import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.base.BasePresenter;
 import com.kaushalmandayam.djroomba.screens.base.BaseView;
 
@@ -71,6 +73,12 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
         }
 
         view.populateTrack(tracks);
+    }
+
+    public void updatePlaylist(Party party, Track track)
+    {
+        party.addTracktoPlaylist(track.id);
+        PartyManager.INSTANCE.updateParty(party);
     }
 
     //==============================================================================================

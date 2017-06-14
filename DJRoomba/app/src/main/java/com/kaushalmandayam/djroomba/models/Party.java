@@ -1,6 +1,8 @@
 package com.kaushalmandayam.djroomba.models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,7 +16,13 @@ public class Party
     public boolean isPasswordProtected;
     public String partyHostId;
     public String partyId;
-    public Map<String, String> partyPlayListSongs = new HashMap<>();
+    public String imageUrl;
+    public List<String> partyPlayListSongs = new ArrayList<>();
+
+    public void setPartyPlayListSongs(List<String> partyPlayListSongs)
+    {
+        this.partyPlayListSongs = partyPlayListSongs;
+    }
 
 
     public String getPartyName()
@@ -47,15 +55,11 @@ public class Party
         isPasswordProtected = passwordProtected;
     }
 
-    public Map<String, String>  getPartyPlayListSongs()
+    public List<String> getPartyPlayListSongs()
     {
         return partyPlayListSongs;
     }
 
-    public void setPartyPlayListSongs(Map<String, String> partyPlayListSongs)
-    {
-        this.partyPlayListSongs = partyPlayListSongs;
-    }
 
     public String getPartyId()
     {
@@ -78,7 +82,7 @@ public class Party
     }
 
 
-    public Map<String,Object> toMap()
+    public Map<String, Object> toMap()
     {
         HashMap<String, Object> partyValue = new HashMap<>();
         partyValue.put("partyName", partyName);
@@ -87,7 +91,26 @@ public class Party
         partyValue.put("partyHostId", partyHostId);
         partyValue.put("partyId", partyId);
         partyValue.put("partyplaylist", partyPlayListSongs);
+        partyValue.put("imageUrl", imageUrl);
 
         return partyValue;
+    }
+
+    public void addTracktoPlaylist(String trackId)
+    {
+        if (!partyPlayListSongs.contains(trackId))
+        {
+            partyPlayListSongs.add(trackId);
+        }
+    }
+
+    public void setImageUrl(String imageUrl)
+    {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getImageUrl()
+    {
+        return imageUrl;
     }
 }

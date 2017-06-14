@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.kaushalmandayam.djroomba.R;
 import com.kaushalmandayam.djroomba.models.Party;
 
@@ -31,14 +32,15 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
     //==============================================================================================
 
     private List<Party> parties = new ArrayList<>();
+    private PartyListAdapterListener listener;
 
     //==============================================================================================
     // Constructor
     //==============================================================================================
 
-    public PartyListAdapter()
+    public PartyListAdapter(PartyListAdapter.PartyListAdapterListener listener)
     {
-        // empty constructor
+        this.listener = listener;
     }
 
     public void setData(List<Party> parties)
@@ -46,12 +48,6 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
         this.parties = new ArrayList<>();
         this.parties.addAll(parties);
         this.notifyDataSetChanged();
-    }
-
-    public void clearDataList()
-    {
-        parties.clear();
-        notifyDataSetChanged();
     }
 
     @Override
@@ -66,6 +62,18 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
     {
         final Party party = parties.get(position);
         holder.load(party);
+
+        if (listener != null)
+        {
+            holder.itemView.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    listener.onPartyClicked(party);
+                }
+            });
+        }
     }
 
     @Override
@@ -89,8 +97,22 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
 
         public void load(Party party)
         {
-          //  partyImageView.setText(getFormattedString(track.name));
+            Glide.with(partyImageView.getContext())
+                    .load(party.getImageUrl())
+                    .placeholder(R.drawable.ic_avatar_empty_40_px)
+                    .dontAnimate()
+                    .into(partyImageView);
+
             partyNameTextView.setText(party.getPartyName());
         }
+    }
+
+    //==============================================================================================
+    // Adapter listener Interface
+    //==============================================================================================
+
+    public interface PartyListAdapterListener
+    {
+        void onPartyClicked(Party party);
     }
 }

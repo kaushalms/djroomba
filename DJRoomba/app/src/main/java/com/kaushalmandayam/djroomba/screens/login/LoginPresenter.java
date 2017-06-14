@@ -13,8 +13,11 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
+import java.util.List;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Image;
 
 import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
 
@@ -61,7 +64,6 @@ public class LoginPresenter extends BasePresenter<LoginPresenter.LoginView>
                 view.configPlayer(response);
             }
         }
-
     }
 
     public void onLoggedIn() {
@@ -73,9 +75,14 @@ public class LoginPresenter extends BasePresenter<LoginPresenter.LoginView>
                 api.setAccessToken(UserManager.INSTANCE.getUserToken());
                 SpotifyService spotify = api.getService();
                 String id = spotify.getMe().id;
+                List<Image> userImages = spotify.getMe().images;
                 if (id != null)
                 {
                     UserManager.INSTANCE.setUserId(id);
+                }
+                if (userImages.size() > 0)
+                {
+                    UserManager.INSTANCE.setUserImageUrl(userImages.get(0).url);
                 }
 
                 Log.d("Login Presenter", "onLoggedIn: userid" + id);

@@ -15,6 +15,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.kaushalmandayam.djroomba.R;
+import com.google.gson.Gson;
+import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListPresenter.TrackListView;
 
@@ -32,6 +34,8 @@ import kaaes.spotify.webapi.android.models.Track;
 public class TrackListActivity extends BaseActivity<TrackListPresenter> implements TrackListView
 {
 
+    private static final String PARTY_KEY = "PARTY_KEY";
+
     @BindView(R.id.searchTextView)
     TextView searchTextView;
     @BindView(R.id.searchEditText)
@@ -48,14 +52,17 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
     RecyclerView tracksRecyclerView;
 
     private TracksAdapter tracksAdapter;
+    private Party party;
 
     //==============================================================================================
     // static Methods
     //==============================================================================================
 
-    public static void start(Context context)
+    public static void start(Context context, Party party)
     {
+        Gson gson = new Gson();
         Intent starter = new Intent(context, TrackListActivity.class);
+        starter.putExtra(PARTY_KEY, gson.toJson(party));
         context.startActivity(starter);
     }
 
@@ -69,6 +76,11 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_list);
         attachPresenter(new TrackListPresenter(), this);
+
+        Bundle bundle = getIntent().getExtras();
+        Gson gson = new Gson();
+        party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
+
         setupSearchBarView();
         setupTrackAdapter();
         searchEditText.addTextChangedListener(new TextWatcher()
@@ -107,7 +119,14 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
     private void setupTrackAdapter()
     {
         tracksRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        tracksAdapter = new TracksAdapter();
+        tracksAdapter = new TracksAdapter(party, new TracksAdapter.TrackListAdapterListener()
+        {
+            @Override
+            public void onPartyClicked(Party party, Track track)
+            {
+                presenter.updatePlaylist(party, track);
+            }
+        });
         tracksRecyclerView.setAdapter(tracksAdapter);
     }
 
