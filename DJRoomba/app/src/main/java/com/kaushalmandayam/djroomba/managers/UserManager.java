@@ -14,6 +14,7 @@ public enum UserManager
     INSTANCE;
 
     private String userToken;
+    private String userCode;
     private String userId;
     private String userImageUrl;
 
@@ -50,5 +51,10 @@ public enum UserManager
     public String getUserImageUrl()
     {
         return userImageUrl;
+    }
+
+    public void setUserCode(String userCode)
+    {
+        this.userCode = userCode;
     }
 }

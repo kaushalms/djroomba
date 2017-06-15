@@ -64,7 +64,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     //==============================================================================================
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_party_detail);
@@ -74,6 +74,13 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
         presenter.getTracks(party);
         setupTrackAdapter();
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        presenter.refreshSpotifyToken();
     }
 
     private void setupTrackAdapter()

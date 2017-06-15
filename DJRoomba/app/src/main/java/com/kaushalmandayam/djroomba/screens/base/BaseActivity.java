@@ -45,30 +45,13 @@ public abstract class BaseActivity<T> extends AppCompatActivity
     {
         super.setContentView(layoutResID);
         ButterKnife.bind(this);
+    }
 
-//        toolbar = (Toolbar) findViewById(R.id.toolbar);
-//
-//        if (toolbar != null)
-//        {
-//            setSupportActionBar(toolbar);
-//            actionBar = getSupportActionBar();
-//
-//            if (actionBar != null)
-//            {
-//                actionBar.setDisplayHomeAsUpEnabled(true);
-//                actionBar.setHomeButtonEnabled(true);
-//                actionBar.setDisplayShowTitleEnabled(false);
-//            }
-//
-//            toolbar.setNavigationOnClickListener(new View.OnClickListener()
-//            {
-//                @Override
-//                public void onClick(View v)
-//                {
-//                    onBackPressed();
-//                }
-//            });
-//        }
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        refreshSpotifyToken();
     }
 
     @Override
@@ -94,6 +77,11 @@ public abstract class BaseActivity<T> extends AppCompatActivity
     //==============================================================================================
     // Class Instance Methods
     //==============================================================================================
+
+    private void refreshSpotifyToken()
+    {
+
+    }
 
     protected void showToast(String message)
     {

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
 import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.screens.PartyDetail.PartyDetailActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListPresenter.TrackListView;
 
@@ -155,7 +156,14 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
     @OnClick(R.id.clearImageView)
     void onClickClear()
     {
-        searchEditText.setText("");
+        if (!searchEditText.getText().toString().isEmpty())
+        {
+            searchEditText.setText("");
+        }
+        else
+        {
+            PartyDetailActivity.start(this, party);
+        }
     }
 
 

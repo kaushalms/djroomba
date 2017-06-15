@@ -9,7 +9,8 @@ import android.preference.PreferenceManager;
  * Created by Kaushal on 6/4/2017.
  */
 
-public class PreferenceUtils {
+public class PreferenceUtils
+{
     private static final String PREF_USER_LOGGEDIN_STATUS = "PREF_USER_LOGGEDIN_STATUS";
 
     public static SharedPreferences getSharedPreferences(Context ctx)

@@ -13,6 +13,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.kaushalmandayam.djroomba.Constants;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -34,6 +35,10 @@ public enum DjRoombaApi
 
     private static final int MILLISECONDS_PER_SECOND = 1000;
     private static final int TIMEOUT_SECONDS = 15;
+
+    public static final TokenService tokenService() { return INSTANCE.tokenService; }
+
+    private final TokenService tokenService;
 
     DjRoombaApi()
     {
@@ -80,10 +85,12 @@ public enum DjRoombaApi
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("")
+                .baseUrl(Constants.ACCOUNTS_BASE_URL)
                 .client(getClient(true))
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
+
+        tokenService = retrofit.create(TokenService.class);
 
     }
 
@@ -97,7 +104,10 @@ public enum DjRoombaApi
         if (showLogs)
         {
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-            client = new OkHttpClient.Builder().addInterceptor(interceptor).connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS).readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS).build();
+            client = new OkHttpClient.Builder().addInterceptor(interceptor)
+                    .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    .build();
         }
         else
         {

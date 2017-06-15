@@ -2,24 +2,34 @@ package com.kaushalmandayam.djroomba.screens.login;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.ArrayMap;
 import android.util.Log;
 
-import com.google.firebase.database.DataSnapshot;
-import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.managers.UserManager;
+import com.kaushalmandayam.djroomba.models.RefreshTokenParameters;
+import com.kaushalmandayam.djroomba.net.DjRoombaApi;
 import com.kaushalmandayam.djroomba.screens.base.BasePresenter;
 import com.kaushalmandayam.djroomba.screens.base.BaseView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
+import org.json.JSONObject;
+
 import java.util.List;
+import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Image;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
+import static com.kaushalmandayam.djroomba.Constants.CLIENT_SECRET;
 
 /**
  * Presenter for LoginActivity
@@ -46,31 +56,66 @@ public class LoginPresenter extends BasePresenter<LoginPresenter.LoginView>
 
     public void onAuthenticateSpotifyLoginClicked()
     {
-        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
-                AuthenticationResponse.Type.TOKEN,
+        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(
+                CLIENT_ID,
+                AuthenticationResponse.Type.CODE,
                 REDIRECT_URI);
         builder.setScopes(new String[]{"user-read-private", "streaming"});
         AuthenticationRequest request = builder.build();
         view.ShowLoginActivity(request);
     }
 
-    public void onSpotifyAuthReceived(int requestCode, int resultCode, Intent intent) {
+    public void onSpotifyAuthReceived(int requestCode, int resultCode, Intent intent)
+    {
         if (requestCode == REQUEST_CODE)
         {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
-            if (response.getType() == AuthenticationResponse.Type.TOKEN)
+            getRefreshToken(response.getCode());
+            if (response.getType() == AuthenticationResponse.Type.CODE)
             {
+                UserManager.INSTANCE.setUserCode(response.getCode());
                 UserManager.INSTANCE.setUserToken(response.getAccessToken());
                 view.configPlayer(response);
             }
         }
     }
 
-    public void onLoggedIn() {
+    private void getRefreshToken(String accessCode)
+    {
+        Map<String, Object> map = new ArrayMap<>();
+        map.put("grant_type", "authorization_code");
+        map.put("code", accessCode);
+        map.put("redirect_uri", REDIRECT_URI);
+        map.put("client_id", CLIENT_ID);
+        map.put("client_secret", CLIENT_SECRET);
+        RequestBody body = RequestBody.create(okhttp3.MediaType.parse("application/x-www-form-urlencoded"),
+                                                (new JSONObject(map)).toString());
 
-        AsyncTask.execute(new Runnable() {
+        DjRoombaApi.tokenService().fetchRefreshToken(body)
+                                    .enqueue(new Callback<ResponseBody>()
+                                    {
+                                        @Override
+                                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response)
+                                        {
+                                            Log.d("refresh token", "onResponse: " + response.message());
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<ResponseBody> call, Throwable t)
+                                        {
+
+                                        }
+                                    });
+    }
+
+    public void onLoggedIn()
+    {
+
+        AsyncTask.execute(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 SpotifyApi api = new SpotifyApi();
                 api.setAccessToken(UserManager.INSTANCE.getUserToken());
                 SpotifyService spotify = api.getService();

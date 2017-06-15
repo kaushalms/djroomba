@@ -97,6 +97,11 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
         AudioPlayerManager.INSTANCE.getPlayer().pause(operationCallback);
     }
 
+    public void refreshSpotifyToken()
+    {
+
+    }
+
     //==============================================================================================
     // View Interface
     //==============================================================================================

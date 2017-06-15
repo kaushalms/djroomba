@@ -8,8 +8,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kaushalmandayam.djroomba.R;
-import com.kaushalmandayam.djroomba.models.Party;
-import com.kaushalmandayam.djroomba.screens.PartyList.PartyListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
