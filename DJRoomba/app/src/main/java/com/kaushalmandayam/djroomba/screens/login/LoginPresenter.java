@@ -6,7 +6,6 @@ import android.util.ArrayMap;
 import android.util.Log;
 
 import com.kaushalmandayam.djroomba.managers.UserManager;
-import com.kaushalmandayam.djroomba.models.RefreshTokenParameters;
 import com.kaushalmandayam.djroomba.net.DjRoombaApi;
 import com.kaushalmandayam.djroomba.screens.base.BasePresenter;
 import com.kaushalmandayam.djroomba.screens.base.BaseView;
