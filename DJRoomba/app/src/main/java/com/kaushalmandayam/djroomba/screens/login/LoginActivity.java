@@ -8,6 +8,7 @@ import android.util.Log;
 import com.example.kaushalmandayam.djroomba.R;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
+import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.kaushalmandayam.djroomba.screens.login.LoginPresenter.LoginView;
@@ -32,8 +33,9 @@ import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
  */
 
 public class LoginActivity extends BaseActivity<LoginPresenter> implements LoginView,
-                                                                            ConnectionStateCallback,
-                                                                            SpotifyPlayer.NotificationCallback
+        LoginManager.AccessTokenListener,
+        ConnectionStateCallback,
+        SpotifyPlayer.NotificationCallback
 {
     // Request code that will be used to verify if the result comes from correct activity
     // Can be any integer
@@ -61,11 +63,12 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         attachPresenter(new LoginPresenter(), this);
+        LoginManager.INSTANCE.setTokenListener(this);
 
-        if (PreferenceUtils.getUserLoggedInStatus(this))
-        {
-            PartyListActivity.start(this);
-        }
+//        if (PreferenceUtils.getUserLoggedInStatus() && PreferenceUtils.getAccessCode() != null)
+//        {
+//            PartyListActivity.start(this);
+//        }
     }
 
     @Override
@@ -79,13 +82,13 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     public void onLoggedIn()
     {
         Log.d("Login", "onLoggedIn: success ");
-        PreferenceUtils.setUserLoggedInStatus(this, true);
+        PreferenceUtils.setUserLoggedInStatus(true);
         presenter.onLoggedIn();
     }
 
     public void onLoggedOut()
     {
-        PreferenceUtils.setUserLoggedInStatus(this, false);
+        PreferenceUtils.setUserLoggedInStatus(false);
     }
 
     @Override
@@ -130,10 +133,27 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     }
 
     @Override
-    public void configPlayer(AuthenticationResponse response)
+    public void startPartyListActivity()
+    {
+        PartyListActivity.start(this);
+    }
+
+
+    //================================================================================
+    // Button Click Methods
+    //================================================================================
+
+    @OnClick(R.id.spotifyLoginButton)
+    public void loginButtonPressed()
+    {
+        presenter.onAuthenticateSpotifyLoginClicked();
+    }
+
+    @Override
+    public void setAccessToken(String accessToken)
     {
         Log.d("login", "onActivityResult: success");
-        Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
+        Config playerConfig = new Config(this, accessToken, CLIENT_ID);
         player = Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver()
         {
             @Override
@@ -152,22 +172,5 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
                 Log.e("LoginActivity", "Could not initialize player: " + throwable.getMessage());
             }
         });
-    }
-
-    @Override
-    public void startPartyListActivity()
-    {
-        PartyListActivity.start(this);
-    }
-
-
-    //================================================================================
-    // Button Click Methods
-    //================================================================================
-
-    @OnClick(R.id.spotifyLoginButton)
-    public void loginButtonPressed()
-    {
-        presenter.onAuthenticateSpotifyLoginClicked();
     }
 }

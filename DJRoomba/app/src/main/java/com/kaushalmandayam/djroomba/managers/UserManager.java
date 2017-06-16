@@ -1,5 +1,7 @@
 package com.kaushalmandayam.djroomba.managers;
 
+import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
+
 /**
  * Created by Kaushal on 6/5/2017.
  */
@@ -56,5 +58,11 @@ public enum UserManager
     public void setUserCode(String userCode)
     {
         this.userCode = userCode;
+        PreferenceUtils.setAccessCode(userCode);
+    }
+
+    public String getUserCode()
+    {
+        return userCode;
     }
 }

@@ -10,6 +10,8 @@ import android.widget.ImageView;
 
 import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
+import com.kaushalmandayam.djroomba.managers.LoginManager;
+import com.kaushalmandayam.djroomba.managers.UserManager;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
@@ -29,7 +31,7 @@ import kaaes.spotify.webapi.android.models.Track;
  */
 
 public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
-        implements PartyDetailPresenter.PartyDetailView
+        implements PartyDetailPresenter.PartyDetailView, LoginManager.AccessTokenListener
 {
     //==============================================================================================
     // class properties
@@ -72,15 +74,15 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         Bundle bundle = getIntent().getExtras();
         Gson gson = new Gson();
         party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
-        presenter.getTracks(party);
         setupTrackAdapter();
+        LoginManager.INSTANCE.getRefreshToken(UserManager.INSTANCE.getUserCode());
+
     }
 
     @Override
     public void onResume()
     {
         super.onResume();
-        presenter.refreshSpotifyToken();
     }
 
     private void setupTrackAdapter()
@@ -144,4 +146,9 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         });
     }
 
+    @Override
+    public void setAccessToken(String accessToken)
+    {
+        presenter.getTracks(party, accessToken);
+    }
 }

@@ -36,7 +36,7 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
     // Class Instance Methods
     //==============================================================================================
 
-    public void getTracks(Party party)
+    public void getTracks(Party party, String accessToken)
     {
         // todo move spotify api and service to a manager
 
@@ -45,7 +45,7 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
         final List<String> playListSongs = party.getPartyPlayListSongs();
         final List<Track> tracks = new ArrayList<>();
 
-        api.setAccessToken(UserManager.INSTANCE.getUserToken());
+        api.setAccessToken(accessToken);
 
         try
         {
@@ -88,18 +88,11 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
         {
             Log.d("Spotify player", "Failed");
         }
-
-
     };
 
     public void onPauseClicked()
     {
         AudioPlayerManager.INSTANCE.getPlayer().pause(operationCallback);
-    }
-
-    public void refreshSpotifyToken()
-    {
-
     }
 
     //==============================================================================================
