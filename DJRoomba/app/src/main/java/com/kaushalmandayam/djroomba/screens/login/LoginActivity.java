@@ -65,10 +65,10 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         attachPresenter(new LoginPresenter(), this);
         LoginManager.INSTANCE.setTokenListener(this);
 
-//        if (PreferenceUtils.getUserLoggedInStatus() && PreferenceUtils.getAccessCode() != null)
-//        {
-//            PartyListActivity.start(this);
-//        }
+        if (PreferenceUtils.getUserLoggedInStatus() && PreferenceUtils.getAccessCode() != null)
+        {
+            PartyListActivity.start(this);
+        }
     }
 
     @Override
@@ -173,4 +173,5 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
             }
         });
     }
+
 }

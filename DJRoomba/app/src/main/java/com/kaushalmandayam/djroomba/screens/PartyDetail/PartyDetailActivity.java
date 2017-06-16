@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
+import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.managers.UserManager;
 import com.kaushalmandayam.djroomba.models.Party;
@@ -31,7 +32,7 @@ import kaaes.spotify.webapi.android.models.Track;
  */
 
 public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
-        implements PartyDetailPresenter.PartyDetailView, LoginManager.AccessTokenListener
+        implements PartyDetailPresenter.PartyDetailView, LoginManager.TracksListener
 {
     //==============================================================================================
     // class properties
@@ -71,12 +72,14 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_party_detail);
         attachPresenter(new PartyDetailPresenter(), this);
+        LoginManager.INSTANCE.setTracksListener(this);
         Bundle bundle = getIntent().getExtras();
         Gson gson = new Gson();
         party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
-        setupTrackAdapter();
-        LoginManager.INSTANCE.getRefreshToken(UserManager.INSTANCE.getUserCode());
 
+        setupTrackAdapter();
+
+        LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
     }
 
     @Override
@@ -146,8 +149,9 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         });
     }
 
+
     @Override
-    public void setAccessToken(String accessToken)
+    public void showTracks(String accessToken)
     {
         presenter.getTracks(party, accessToken);
     }

@@ -6,7 +6,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.kaushalmandayam.djroomba.models.Party;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 /**

@@ -6,6 +6,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.managers.UserManager;
 import com.kaushalmandayam.djroomba.models.AccessTokenModel;
@@ -69,6 +70,7 @@ public class LoginPresenter extends BasePresenter<LoginPresenter.LoginView>
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             UserManager.INSTANCE.setUserCode(response.getCode());
             LoginManager.INSTANCE.getRefreshToken(response.getCode());
+
         }
     }
 

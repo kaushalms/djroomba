@@ -4,14 +4,11 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.kaushalmandayam.djroomba.DjRoombaApplication;
+
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.models.AccessTokenModel;
 import com.kaushalmandayam.djroomba.models.RefreshTokenModel;
 import com.kaushalmandayam.djroomba.net.DjRoombaApi;
-import com.kaushalmandayam.djroomba.screens.base.BaseView;
-import com.kaushalmandayam.djroomba.screens.login.LoginPresenter;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
 
 import java.io.IOException;
 
@@ -35,6 +32,7 @@ public enum LoginManager
     INSTANCE;
 
     AccessTokenListener listener;
+    TracksListener tracksListener;
 
     public void getRefreshToken(String accessCode)
     {
@@ -42,6 +40,7 @@ public enum LoginManager
         {
             accessCode = PreferenceUtils.getAccessCode();
         }
+
         DjRoombaApi.tokenService().getRefreshToken("authorization_code", accessCode, REDIRECT_URI, getEncodedHeaderString())
                 .enqueue(new Callback<ResponseBody>()
                 {
@@ -62,6 +61,7 @@ public enum LoginManager
 
                             if (!bodyString.isEmpty())
                             {
+                                PreferenceUtils.setRefreshToken(parseRefreshTokenResponse(bodyString));
                                 parseRefreshTokenResponse(bodyString);
                             }
 
@@ -77,7 +77,7 @@ public enum LoginManager
                 });
     }
 
-    private void fetchAccessToken(String refreshToken)
+    public void fetchAccessToken(String refreshToken)
     {
         DjRoombaApi.tokenService().getToken("refresh_token", refreshToken, getEncodedHeaderString())
                 .enqueue(new Callback<ResponseBody>()
@@ -99,14 +99,20 @@ public enum LoginManager
 
                             if (!bodyString.isEmpty())
                             {
-                                parseRefreshTokenResponse(bodyString);
+
                             }
+
                             UserManager.INSTANCE.setUserToken(parseAccessTokenResponse(bodyString));
                         }
 
                         if (UserManager.INSTANCE.getUserToken() != null)
                         {
                             listener.setAccessToken(UserManager.INSTANCE.getUserToken());
+                            if (tracksListener != null)
+                            {
+                                tracksListener.showTracks(UserManager.INSTANCE.getUserToken());
+                            }
+
                         }
                     }
 
@@ -143,9 +149,18 @@ public enum LoginManager
     {
         this.listener = listener;
     }
+    public void setTracksListener(TracksListener listener)
+    {
+        this.tracksListener = listener;
+    }
 
     public interface AccessTokenListener
     {
         void setAccessToken(String accessToken);
+    }
+
+    public interface TracksListener
+    {
+        void showTracks(String accessToken);
     }
 }

@@ -17,6 +17,7 @@ public class PreferenceUtils
     private static final String PREFS_ID = "DJROOMBA_PREFERENCES";
     private static final String PREF_USER_LOGGEDIN_STATUS = "PREF_USER_LOGGEDIN_STATUS";
     private static final String PREF_ACCESS_TOKEN = "PREF_ACCESS_TOKEN";
+    private static final String PREF_REFRESH_TOKEN = "PREF_REFRESH_TOKEN";
 
     public static SharedPreferences getSharedPreferences()
     {
@@ -47,4 +48,15 @@ public class PreferenceUtils
         return getSharedPreferences().getString(PREF_ACCESS_TOKEN, null);
     }
 
+    public static void setRefreshToken(String refreshToken)
+    {
+        Editor editor = getSharedPreferences().edit();
+        editor.putString(PREF_REFRESH_TOKEN, refreshToken);
+        editor.apply();
+    }
+
+    public static String getRefreshToken()
+    {
+        return getSharedPreferences().getString(PREF_REFRESH_TOKEN, null);
+    }
 }

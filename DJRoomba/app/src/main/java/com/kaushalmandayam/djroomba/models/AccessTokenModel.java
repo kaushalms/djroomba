@@ -14,7 +14,4 @@ public class AccessTokenModel
     public String token_type;
     public String scope;
     public String expires_in;
-
-
-
 }
