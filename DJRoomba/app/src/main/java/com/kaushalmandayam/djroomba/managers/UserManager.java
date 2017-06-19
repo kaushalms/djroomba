@@ -29,7 +29,7 @@ public enum UserManager
         return userToken;
     }
 
-    public void setUserToken(String userToken)
+    public void setUserAccessToken(String userToken)
     {
         this.userToken = userToken;
     }

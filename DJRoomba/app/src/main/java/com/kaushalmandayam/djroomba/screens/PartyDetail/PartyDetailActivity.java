@@ -12,10 +12,13 @@ import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
-import com.kaushalmandayam.djroomba.managers.UserManager;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
+
+import com.spotify.sdk.android.player.Error;
+import com.spotify.sdk.android.player.PlayerEvent;
+import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.List;
 
@@ -32,7 +35,9 @@ import kaaes.spotify.webapi.android.models.Track;
  */
 
 public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
-        implements PartyDetailPresenter.PartyDetailView, LoginManager.TracksListener
+        implements PartyDetailPresenter.PartyDetailView, SpotifyPlayer.NotificationCallback,
+        LoginManager.AccessTokenListener
+
 {
     //==============================================================================================
     // class properties
@@ -72,14 +77,15 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_party_detail);
         attachPresenter(new PartyDetailPresenter(), this);
-        LoginManager.INSTANCE.setTracksListener(this);
+
         Bundle bundle = getIntent().getExtras();
         Gson gson = new Gson();
         party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
 
         setupTrackAdapter();
-
+        LoginManager.INSTANCE.setAccesstokenListener(this);
         LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
+
     }
 
     @Override
@@ -123,6 +129,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     {
         playMediaImageView.setVisibility(View.GONE);
         pauseMediaImageView.setVisibility(View.VISIBLE);
+
+        presenter.onPlayerResumed();
     }
 
     @OnClick(R.id.pauseMediaImageView)
@@ -130,6 +138,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     {
         playMediaImageView.setVisibility(View.VISIBLE);
         pauseMediaImageView.setVisibility(View.GONE);
+
+        presenter.onPauseClicked();
     }
 
     //==============================================================================================
@@ -149,10 +159,21 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         });
     }
 
+    @Override
+    public void onPlaybackEvent(PlayerEvent playerEvent)
+    {
+
+    }
 
     @Override
-    public void showTracks(String accessToken)
+    public void onPlaybackError(Error error)
     {
-        presenter.getTracks(party, accessToken);
+
+    }
+
+    @Override
+    public void setAccessToken(String userToken)
+    {
+        presenter.getTracks(party);
     }
 }

@@ -12,6 +12,8 @@ import com.kaushalmandayam.djroomba.net.DjRoombaApi;
 
 import java.io.IOException;
 
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyService;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,9 +32,10 @@ import static com.kaushalmandayam.djroomba.Constants.REDIRECT_URI;
 public enum LoginManager
 {
     INSTANCE;
-
-    AccessTokenListener listener;
-    TracksListener tracksListener;
+    RefreshTokenListener refreshTokenListener;
+    AccessTokenListener accessTokenListener;
+    final SpotifyApi api = new SpotifyApi();
+    final SpotifyService spotifyService = api.getService();
 
     public void getRefreshToken(String accessCode)
     {
@@ -85,7 +88,7 @@ public enum LoginManager
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response)
                     {
-                        if(response.isSuccessful())
+                        if (response.isSuccessful())
                         {
                             String bodyString = "";
                             try
@@ -99,20 +102,23 @@ public enum LoginManager
 
                             if (!bodyString.isEmpty())
                             {
+                                UserManager.INSTANCE.setUserAccessToken(parseAccessTokenResponse(bodyString));
+                                api.setAccessToken(UserManager.INSTANCE.getUserToken());
 
+                                // Listener for login Activity
+                                if (refreshTokenListener != null)
+                                {
+                                    refreshTokenListener.setAccessToken(UserManager.INSTANCE.getUserToken());
+                                    refreshTokenListener = null;
+                                }
+
+                                // Listener for partyDetail Activity
+                                if (accessTokenListener != null)
+                                {
+                                    accessTokenListener.setAccessToken(UserManager.INSTANCE.getUserToken());
+                                    accessTokenListener = null;
+                                }
                             }
-
-                            UserManager.INSTANCE.setUserToken(parseAccessTokenResponse(bodyString));
-                        }
-
-                        if (UserManager.INSTANCE.getUserToken() != null)
-                        {
-                            listener.setAccessToken(UserManager.INSTANCE.getUserToken());
-                            if (tracksListener != null)
-                            {
-                                tracksListener.showTracks(UserManager.INSTANCE.getUserToken());
-                            }
-
                         }
                     }
 
@@ -127,14 +133,14 @@ public enum LoginManager
     private String parseAccessTokenResponse(String bodyString)
     {
         Gson gson = new Gson();
-        AccessTokenModel accessTokenModel = gson.fromJson(bodyString , AccessTokenModel.class);
+        AccessTokenModel accessTokenModel = gson.fromJson(bodyString, AccessTokenModel.class);
         return accessTokenModel.access_token;
     }
 
     private String parseRefreshTokenResponse(String bodyString)
     {
         Gson gson = new Gson();
-        RefreshTokenModel refreshTokenModel = gson.fromJson(bodyString , RefreshTokenModel.class);
+        RefreshTokenModel refreshTokenModel = gson.fromJson(bodyString, RefreshTokenModel.class);
         return refreshTokenModel.refresh_token;
     }
 
@@ -145,22 +151,29 @@ public enum LoginManager
         return "Basic " + encodedClientSecret;
     }
 
-    public void setTokenListener(AccessTokenListener listener)
+    public void setRefreshTokenListener(RefreshTokenListener refreshTokenListener)
     {
-        this.listener = listener;
+        this.refreshTokenListener = refreshTokenListener;
     }
-    public void setTracksListener(TracksListener listener)
+
+    public SpotifyService getService()
     {
-        this.tracksListener = listener;
+        return spotifyService;
     }
+
+    public void setAccesstokenListener(AccessTokenListener accesstokenListener)
+    {
+        this.accessTokenListener = accesstokenListener;
+    }
+
 
     public interface AccessTokenListener
     {
-        void setAccessToken(String accessToken);
+        void setAccessToken(String userToken);
     }
 
-    public interface TracksListener
+    public interface RefreshTokenListener
     {
-        void showTracks(String accessToken);
+        void setAccessToken(String userToken);
     }
 }

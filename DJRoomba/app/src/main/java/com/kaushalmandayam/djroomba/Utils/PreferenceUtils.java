@@ -3,10 +3,9 @@ package com.kaushalmandayam.djroomba.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.preference.PreferenceManager;
 
 import com.kaushalmandayam.djroomba.DjRoombaApplication;
-import com.kaushalmandayam.djroomba.net.DjRoombaApi;
+
 
 /**
  * Created by Kaushal on 6/4/2017.

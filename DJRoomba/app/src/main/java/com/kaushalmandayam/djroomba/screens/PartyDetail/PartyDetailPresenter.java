@@ -1,12 +1,11 @@
 package com.kaushalmandayam.djroomba.screens.PartyDetail;
 
 
-import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
-import com.kaushalmandayam.djroomba.managers.UserManager;
+import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.base.BasePresenter;
 import com.kaushalmandayam.djroomba.screens.base.BaseView;
@@ -16,7 +15,6 @@ import com.spotify.sdk.android.player.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
 import retrofit.RetrofitError;
@@ -36,16 +34,11 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
     // Class Instance Methods
     //==============================================================================================
 
-    public void getTracks(Party party, String accessToken)
+    public void getTracks(Party party)
     {
-        // todo move spotify api and service to a manager
-
-        final SpotifyApi api = new SpotifyApi();
-        final SpotifyService spotify = api.getService();
         final List<String> playListSongs = party.getPartyPlayListSongs();
         final List<Track> tracks = new ArrayList<>();
-
-        api.setAccessToken(accessToken);
+        final SpotifyService spotifyService = LoginManager.INSTANCE.getService();
 
         try
         {
@@ -56,7 +49,7 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
                 {
                     for (String songId : playListSongs)
                     {
-                        tracks.add(spotify.getTrack(songId));
+                        tracks.add(spotifyService.getTrack(songId));
                     }
 
                     view.showTracks(tracks);
@@ -93,6 +86,11 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
     public void onPauseClicked()
     {
         AudioPlayerManager.INSTANCE.getPlayer().pause(operationCallback);
+    }
+
+    public void onPlayerResumed()
+    {
+        AudioPlayerManager.INSTANCE.getPlayer().resume(operationCallback);
     }
 
     //==============================================================================================

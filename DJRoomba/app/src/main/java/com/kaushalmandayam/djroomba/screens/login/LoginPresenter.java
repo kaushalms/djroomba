@@ -2,32 +2,21 @@ package com.kaushalmandayam.djroomba.screens.login;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Base64;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.managers.UserManager;
-import com.kaushalmandayam.djroomba.models.AccessTokenModel;
-import com.kaushalmandayam.djroomba.models.RefreshTokenModel;
-import com.kaushalmandayam.djroomba.net.DjRoombaApi;
 import com.kaushalmandayam.djroomba.screens.base.BasePresenter;
 import com.kaushalmandayam.djroomba.screens.base.BaseView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
-import java.io.IOException;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Image;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
 import static com.kaushalmandayam.djroomba.Constants.REDIRECT_URI;
@@ -41,7 +30,6 @@ import static com.kaushalmandayam.djroomba.Constants.REQUEST_CODE;
 
 public class LoginPresenter extends BasePresenter<LoginPresenter.LoginView>
 {
-
 
     //==============================================================================================
     // Constructor
@@ -70,7 +58,6 @@ public class LoginPresenter extends BasePresenter<LoginPresenter.LoginView>
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             UserManager.INSTANCE.setUserCode(response.getCode());
             LoginManager.INSTANCE.getRefreshToken(response.getCode());
-
         }
     }
 
