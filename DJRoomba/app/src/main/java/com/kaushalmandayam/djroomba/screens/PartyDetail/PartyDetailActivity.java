@@ -5,19 +5,26 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
+import com.kaushalmandayam.djroomba.DjRoombaApplication;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
+import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 
+import com.kaushalmandayam.djroomba.screens.login.LoginActivity;
+import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Error;
+import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerEvent;
+import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.List;
@@ -25,6 +32,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import kaaes.spotify.webapi.android.models.Track;
+
+import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
 
 /**
  * Screen to display a party
@@ -174,6 +183,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     @Override
     public void setAccessToken(String userToken)
     {
+        presenter.onAccessTokenReceived(userToken);
+
         presenter.getTracks(party);
     }
 }

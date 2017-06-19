@@ -4,13 +4,17 @@ package com.kaushalmandayam.djroomba.screens.PartyDetail;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.kaushalmandayam.djroomba.DjRoombaApplication;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.base.BasePresenter;
 import com.kaushalmandayam.djroomba.screens.base.BaseView;
+import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Error;
 import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.Spotify;
+import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +22,8 @@ import java.util.List;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
 import retrofit.RetrofitError;
+
+import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
 
 /**
  * Presenter for PartyDetailActivity
@@ -29,6 +35,8 @@ import retrofit.RetrofitError;
 
 public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.PartyDetailView>
 {
+
+    private Player spotifyPlayer;
 
     //==============================================================================================
     // Class Instance Methods
@@ -90,7 +98,27 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
 
     public void onPlayerResumed()
     {
-        AudioPlayerManager.INSTANCE.getPlayer().resume(operationCallback);
+
+    }
+
+    public void onAccessTokenReceived(String userToken)
+    {
+        Log.d("login", "onActivityResult: success");
+        Config playerConfig = new Config(DjRoombaApplication.getContext(), userToken, CLIENT_ID);
+        spotifyPlayer = Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver()
+        {
+            @Override
+            public void onInitialized(SpotifyPlayer spotifyPlayer)
+            {
+                AudioPlayerManager.INSTANCE.setPlayer(spotifyPlayer);
+            }
+
+            @Override
+            public void onError(Throwable throwable)
+            {
+                Log.e("LoginActivity", "Could not initialize player: " + throwable.getMessage());
+            }
+        });
     }
 
     //==============================================================================================

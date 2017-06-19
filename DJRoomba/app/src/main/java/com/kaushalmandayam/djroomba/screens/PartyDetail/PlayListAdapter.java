@@ -25,7 +25,7 @@ import kaaes.spotify.webapi.android.models.Track;
  * @author Kaushal
  */
 
-public class PlayListAdapter  extends RecyclerView.Adapter<PlayListAdapter.PlaylistViewHolder>
+public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlaylistViewHolder>
 {
 
     private PlayListAdapter.PlaylistAdapterListener listener;
@@ -82,10 +82,12 @@ public class PlayListAdapter  extends RecyclerView.Adapter<PlayListAdapter.Playl
         ImageView playImageView;
 
         private Track track;
+        private int previousPosition;
 
         public PlaylistViewHolder(View itemView)
         {
             super(itemView);
+
             ButterKnife.bind(this, itemView);
         }
 
@@ -120,9 +122,26 @@ public class PlayListAdapter  extends RecyclerView.Adapter<PlayListAdapter.Playl
         @OnClick(R.id.playImageView)
         void onAddButtonClicked()
         {
+            resetPreviousButton();
+
+            playImageView.setTag(this);
+            pauseImageView.setTag(this);
+
             playImageView.setVisibility(View.GONE);
             pauseImageView.setVisibility(View.VISIBLE);
-            listener.onPlayClicked(track);
+            listener.onPlayClicked(track, getAdapterPosition());
+        }
+
+        private void resetPreviousButton()
+        {
+            ImageView previousPlayImageView = findView
+            ImageView previousPauseImageView = (ImageView)itemView.findViewWithTag(pauseImageView.getTag());
+
+            if (previousPlayImageView != null && previousPauseImageView != null)
+            {
+                previousPlayImageView.setVisibility(View.VISIBLE);
+                previousPauseImageView.setVisibility(View.GONE);
+            }
         }
 
         @OnClick(R.id.pauseImageView)
@@ -140,7 +159,7 @@ public class PlayListAdapter  extends RecyclerView.Adapter<PlayListAdapter.Playl
 
     public interface PlaylistAdapterListener
     {
-        void onPlayClicked(Track track);
+        void onPlayClicked(Track track, int previousPosition);
 
         void onPauseClicked();
     }
