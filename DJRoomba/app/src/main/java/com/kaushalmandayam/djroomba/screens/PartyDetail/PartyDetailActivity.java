@@ -5,13 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
-import com.kaushalmandayam.djroomba.DjRoombaApplication;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
@@ -20,12 +18,8 @@ import com.kaushalmandayam.djroomba.models.TrackViewModel;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 
-import com.kaushalmandayam.djroomba.screens.login.LoginActivity;
-import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Error;
-import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerEvent;
-import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.List;
@@ -33,8 +27,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import kaaes.spotify.webapi.android.models.Track;
-
-import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
 
 /**
  * Screen to display a party
@@ -55,7 +47,6 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
 
     @BindView(R.id.playlistRecyclerView)
     RecyclerView playlistRecyclerView;
-
     @BindView(R.id.pauseMediaImageView)
     ImageView pauseMediaImageView;
     @BindView(R.id.playMediaImageView)
@@ -93,10 +84,9 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         Gson gson = new Gson();
         party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
 
-        setupTrackAdapter();
         LoginManager.INSTANCE.setAccesstokenListener(this);
         LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
-
+        setupTrackAdapter();
     }
 
     @Override
@@ -108,7 +98,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     private void setupTrackAdapter()
     {
         playlistRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        playListAdapter = new PlayListAdapter(new PlayListAdapter.PlaylistAdapterListener()
+        playListAdapter = new PlayListAdapter(this, new PlayListAdapter.PlaylistAdapterListener()
         {
             @Override
             public void onPlayClicked(TrackViewModel trackViewModel, int lastClickedPosition)
@@ -203,7 +193,13 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     public void setAccessToken(String userToken)
     {
         presenter.onAccessTokenReceived(userToken);
-
-        presenter.getTracks(party);
+        if (AudioPlayerManager.INSTANCE.getTracks() == null)
+        {
+            presenter.getTracks(party);
+        }
+        else if (AudioPlayerManager.INSTANCE.getTrackViewModels() != null)
+        {
+            playListAdapter.setTrackViewModels(AudioPlayerManager.INSTANCE.getTrackViewModels());
+        }
     }
 }

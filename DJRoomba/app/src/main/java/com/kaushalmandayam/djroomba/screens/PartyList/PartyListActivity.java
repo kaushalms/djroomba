@@ -17,6 +17,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
+import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.PartyDetail.PartyDetailActivity;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListPresenter.PartyListView;
@@ -36,7 +38,8 @@ import butterknife.OnClick;
  * @author Kaushal
  */
 
-public class PartyListActivity extends BaseActivity<PartyListPresenter> implements PartyListView
+public class PartyListActivity extends BaseActivity<PartyListPresenter> implements PartyListView,
+        LoginManager.PartyListAccessTokenListener
 {
     private static final String TAG = "PartyListActivity";
     @BindView(R.id.fab)
@@ -95,6 +98,7 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
                 Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
             }
         });
+
     }
 
 
@@ -130,6 +134,7 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     @OnClick(R.id.submitButton)
     void onSubmitButtonClicked()
     {
+        LoginManager.INSTANCE.setPartyListAccessTokenListener(this);
         presenter.onSubmitButtonClicked(partyNameEditText.getText().toString(),
                                         partyDescriptionEditText.getText().toString(),
                                         passwordCheckBox.isSelected());
@@ -169,5 +174,11 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     public void showPartyList(List<Party> parties)
     {
         partyListAdapter.setData(parties);
+    }
+
+    @Override
+    public void setAccessToken(String userToken)
+    {
+        presenter.onAccessTokenReceived(userToken);
     }
 }

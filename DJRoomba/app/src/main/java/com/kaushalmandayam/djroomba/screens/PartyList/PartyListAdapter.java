@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -65,7 +66,7 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
 
         if (listener != null)
         {
-            holder.itemView.setOnClickListener(new View.OnClickListener()
+            holder.joinPartyButton.setOnClickListener(new View.OnClickListener()
             {
                 @Override
                 public void onClick(View view)
@@ -88,6 +89,8 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
         ImageView partyImageView;
         @BindView(R.id.partyNameTextView)
         TextView partyNameTextView;
+        @BindView(R.id.joinPartyButton)
+        Button joinPartyButton;
 
         public PartyViewHolder(View itemView)
         {

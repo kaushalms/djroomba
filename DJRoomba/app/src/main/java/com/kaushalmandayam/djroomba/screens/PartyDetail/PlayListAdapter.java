@@ -1,5 +1,7 @@
 package com.kaushalmandayam.djroomba.screens.PartyDetail;
 
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kaushalmandayam.djroomba.R;
+import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.models.TrackViewModel;
 
 import java.util.ArrayList;
@@ -28,18 +31,20 @@ import kaaes.spotify.webapi.android.models.Track;
 
 public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlaylistViewHolder>
 {
-
     private PlayListAdapter.PlaylistAdapterListener listener;
     private List<Track> tracks = new ArrayList<>();
     private List<TrackViewModel> trackViewModels = new ArrayList<>();
     private int lastClickedPosition;
+    private Context context;
+
     //==============================================================================================
     // Constructor
     //==============================================================================================
 
-    public PlayListAdapter(PlayListAdapter.PlaylistAdapterListener listener)
+    public PlayListAdapter(Context context, PlayListAdapter.PlaylistAdapterListener listener)
     {
         this.listener = listener;
+        this.context = context;
     }
 
     public void setData(List<Track> tracks)
@@ -52,8 +57,20 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
             trackViewModel.setTrack(track);
             trackViewModels.add(trackViewModel);
         }
+        AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
         this.notifyDataSetChanged();
     }
+
+    public void setTrackViewModels(List<TrackViewModel> trackViewModels)
+    {
+        this.trackViewModels.clear();
+        this.trackViewModels.addAll(trackViewModels);
+        this.notifyDataSetChanged();
+    }
+
+    //==============================================================================================
+    // Adapter methods
+    //==============================================================================================
 
     @Override
     public PlaylistViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
@@ -66,7 +83,6 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     public void onBindViewHolder(PlaylistViewHolder holder, int position)
     {
         final TrackViewModel trackViewModel = trackViewModels.get(position);
-
         holder.load(trackViewModel);
     }
 
@@ -79,12 +95,14 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     public void pauseTrack(int lastClickedPosition)
     {
         trackViewModels.get(lastClickedPosition).setPlaying(false);
+        AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
         notifyItemChanged(lastClickedPosition);
     }
 
     public void playTrack(int lastClickedPosition)
     {
         trackViewModels.get(lastClickedPosition).setPlaying(true);
+        AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
         notifyItemChanged(lastClickedPosition);
     }
 
@@ -105,11 +123,9 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
 
         private TrackViewModel trackViewModel;
 
-
         public PlaylistViewHolder(View itemView)
         {
             super(itemView);
-
             ButterKnife.bind(this, itemView);
         }
 
@@ -123,6 +139,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
             }
             else
             {
+                trackTextView.setTextColor(ContextCompat.getColor(context, R.color.black));
                 playImageView.setVisibility(View.VISIBLE);
                 pauseImageView.setVisibility(View.GONE);
             }
@@ -147,7 +164,6 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
                     artistName = artistName + ", " + track.artists.get(i).name;
                 }
             }
-
             return artistName;
         }
 
@@ -157,24 +173,21 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
             if (!(lastClickedPosition == trackViewModels.indexOf(trackViewModel)))
             {
                 trackViewModels.get(lastClickedPosition).setPlaying(false);
+                notifyItemChanged(lastClickedPosition);
             }
-            notifyItemChanged(lastClickedPosition);
             playImageView.setVisibility(View.GONE);
             pauseImageView.setVisibility(View.VISIBLE);
-
+            trackTextView.setTextColor(ContextCompat.getColor(context, R.color.primary));
             lastClickedPosition = trackViewModels.indexOf(trackViewModel);
             listener.onPlayClicked(trackViewModel,lastClickedPosition);
             trackViewModel.setPlaying(true);
-
         }
-
 
         @OnClick(R.id.pauseImageView)
         void onPauseClicked()
         {
             playImageView.setVisibility(View.VISIBLE);
             pauseImageView.setVisibility(View.GONE);
-            trackViewModel.setPlaying(false);
             listener.onPauseClicked();
         }
     }

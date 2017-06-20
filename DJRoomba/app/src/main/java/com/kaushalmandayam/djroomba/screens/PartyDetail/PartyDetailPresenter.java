@@ -59,7 +59,7 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
                     {
                         tracks.add(spotifyService.getTrack(songId));
                     }
-
+                    AudioPlayerManager.INSTANCE.setTracks(tracks);
                     view.showTracks(tracks);
                 }
             });

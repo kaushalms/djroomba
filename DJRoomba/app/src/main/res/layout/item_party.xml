@@ -4,21 +4,32 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_marginBottom="10dp"
-              android:orientation="vertical">
+              android:orientation="horizontal">
 
     <ImageView
+        android:layout_margin="18dp"
         android:id="@+id/partyImageView"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_gravity="center" />
 
     <TextView
+        android:layout_marginStart="20dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
         android:id="@+id/partyNameTextView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
         android:textColor="@color/black"
         tools:text="Party Name" />
+
+    <Button
+        android:layout_marginEnd="20dp"
+        android:id="@+id/joinPartyButton"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/join"
+        android:layout_gravity="center_vertical|end">
+    </Button>
 
 </LinearLayout>

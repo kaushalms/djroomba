@@ -34,6 +34,7 @@ public enum LoginManager
     INSTANCE;
     RefreshTokenListener refreshTokenListener;
     AccessTokenListener accessTokenListener;
+    PartyListAccessTokenListener partyListAccessTokenListener;
     final SpotifyApi api = new SpotifyApi();
     final SpotifyService spotifyService = api.getService();
 
@@ -109,15 +110,23 @@ public enum LoginManager
                                 if (refreshTokenListener != null)
                                 {
                                     refreshTokenListener.setAccessToken(UserManager.INSTANCE.getUserToken());
-                                    refreshTokenListener = null;
                                 }
 
                                 // Listener for partyDetail Activity
                                 if (accessTokenListener != null)
                                 {
                                     accessTokenListener.setAccessToken(UserManager.INSTANCE.getUserToken());
-                                    accessTokenListener = null;
                                 }
+
+                                // Listener for partyList Activity
+                                if (partyListAccessTokenListener != null)
+                                {
+                                    partyListAccessTokenListener.setAccessToken(UserManager.INSTANCE.getUserToken());
+                                }
+
+                                refreshTokenListener = null;
+                                accessTokenListener = null;
+                                partyListAccessTokenListener = null;
                             }
                         }
                     }
@@ -166,6 +175,11 @@ public enum LoginManager
         this.accessTokenListener = accesstokenListener;
     }
 
+    public void setPartyListAccessTokenListener(PartyListAccessTokenListener partyListAccessTokenListener)
+    {
+        this.partyListAccessTokenListener = partyListAccessTokenListener;
+    }
+
 
     public interface AccessTokenListener
     {
@@ -173,6 +187,11 @@ public enum LoginManager
     }
 
     public interface RefreshTokenListener
+    {
+        void setAccessToken(String userToken);
+    }
+
+    public interface PartyListAccessTokenListener
     {
         void setAccessToken(String userToken);
     }

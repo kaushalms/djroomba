@@ -64,7 +64,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         setContentView(R.layout.activity_login);
         attachPresenter(new LoginPresenter(), this);
 
-        if (PreferenceUtils.getUserLoggedInStatus() && PreferenceUtils.getAccessCode() != null)
+        if (PreferenceUtils.getUserLoggedInStatus() && PreferenceUtils.getRefreshToken() != null)
         {
             PartyListActivity.start(this);
             finish();
