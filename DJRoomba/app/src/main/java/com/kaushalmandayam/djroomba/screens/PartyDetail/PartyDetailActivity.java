@@ -16,6 +16,7 @@ import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.models.TrackViewModel;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 
@@ -63,6 +64,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     private static final String PARTY_KEY = "PARTY_KEY";
     private Party party;
     private PlayListAdapter playListAdapter;
+    private int lastClickedPosition;
 
     //==============================================================================================
     // static Methods
@@ -109,18 +111,35 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         playListAdapter = new PlayListAdapter(new PlayListAdapter.PlaylistAdapterListener()
         {
             @Override
-            public void onPlayClicked(Track track)
+            public void onPlayClicked(TrackViewModel trackViewModel, int lastClickedPosition)
             {
-                presenter.onPlayClicked(track);
+                if(trackViewModel.isPlaying())
+                {
+                    presenter.onPlayerResumed();
+                }
+                else
+                {
+                    presenter.onPlayClicked(trackViewModel.getTrack());
+                }
+                saveLastPlayedPosition(lastClickedPosition);
+                playMediaImageView.setVisibility(View.GONE);
+                pauseMediaImageView.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onPauseClicked()
             {
                 presenter.onPauseClicked();
+                playMediaImageView.setVisibility(View.VISIBLE);
+                pauseMediaImageView.setVisibility(View.GONE);
             }
         });
         playlistRecyclerView.setAdapter(playListAdapter);
+    }
+
+    private void saveLastPlayedPosition(int lastClickedPosition)
+    {
+        this.lastClickedPosition = lastClickedPosition;
     }
 
     //==============================================================================================
@@ -138,7 +157,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     {
         playMediaImageView.setVisibility(View.GONE);
         pauseMediaImageView.setVisibility(View.VISIBLE);
-
+        playListAdapter.playTrack(lastClickedPosition);
         presenter.onPlayerResumed();
     }
 
@@ -147,7 +166,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     {
         playMediaImageView.setVisibility(View.VISIBLE);
         pauseMediaImageView.setVisibility(View.GONE);
-
+        playListAdapter.pauseTrack(lastClickedPosition);
         presenter.onPauseClicked();
     }
 

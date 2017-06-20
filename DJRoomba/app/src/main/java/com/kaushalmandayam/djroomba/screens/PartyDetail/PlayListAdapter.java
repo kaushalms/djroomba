@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kaushalmandayam.djroomba.R;
+import com.kaushalmandayam.djroomba.models.TrackViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,8 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
 
     private PlayListAdapter.PlaylistAdapterListener listener;
     private List<Track> tracks = new ArrayList<>();
+    private List<TrackViewModel> trackViewModels = new ArrayList<>();
+    private int lastClickedPosition;
     //==============================================================================================
     // Constructor
     //==============================================================================================
@@ -43,6 +46,12 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     {
         this.tracks = new ArrayList<>();
         this.tracks.addAll(tracks);
+        for (Track track : tracks)
+        {
+            TrackViewModel trackViewModel = new TrackViewModel();
+            trackViewModel.setTrack(track);
+            trackViewModels.add(trackViewModel);
+        }
         this.notifyDataSetChanged();
     }
 
@@ -56,14 +65,27 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     @Override
     public void onBindViewHolder(PlaylistViewHolder holder, int position)
     {
-        final Track track = tracks.get(position);
-        holder.load(track);
+        final TrackViewModel trackViewModel = trackViewModels.get(position);
+
+        holder.load(trackViewModel);
     }
 
     @Override
     public int getItemCount()
     {
         return tracks.size();
+    }
+
+    public void pauseTrack(int lastClickedPosition)
+    {
+        trackViewModels.get(lastClickedPosition).setPlaying(false);
+        notifyItemChanged(lastClickedPosition);
+    }
+
+    public void playTrack(int lastClickedPosition)
+    {
+        trackViewModels.get(lastClickedPosition).setPlaying(true);
+        notifyItemChanged(lastClickedPosition);
     }
 
     //==============================================================================================
@@ -81,8 +103,8 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         @BindView(R.id.playImageView)
         ImageView playImageView;
 
-        private Track track;
-        private int previousPosition;
+        private TrackViewModel trackViewModel;
+
 
         public PlaylistViewHolder(View itemView)
         {
@@ -91,11 +113,21 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
             ButterKnife.bind(this, itemView);
         }
 
-        public void load(Track track)
+        public void load(TrackViewModel trackViewModel)
         {
-            this.track = track;
-            trackTextView.setText(getFormattedString(track.name));
-            artistTextView.setText(getArtistNames(track));
+            this.trackViewModel = trackViewModel;
+            if (trackViewModel.isPlaying())
+            {
+                playImageView.setVisibility(View.GONE);
+                pauseImageView.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                playImageView.setVisibility(View.VISIBLE);
+                pauseImageView.setVisibility(View.GONE);
+            }
+            trackTextView.setText(getFormattedString(trackViewModel.getTrack().name));
+            artistTextView.setText(getArtistNames(trackViewModel.getTrack()));
         }
 
         private String getFormattedString(String trackName)
@@ -120,35 +152,29 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         }
 
         @OnClick(R.id.playImageView)
-        void onAddButtonClicked()
+        void onPlayButtonClicked()
         {
-            resetPreviousButton();
-
-            playImageView.setTag(this);
-            pauseImageView.setTag(this);
-
+            if (!(lastClickedPosition == trackViewModels.indexOf(trackViewModel)))
+            {
+                trackViewModels.get(lastClickedPosition).setPlaying(false);
+            }
+            notifyItemChanged(lastClickedPosition);
             playImageView.setVisibility(View.GONE);
             pauseImageView.setVisibility(View.VISIBLE);
-            listener.onPlayClicked(track, getAdapterPosition());
+
+            lastClickedPosition = trackViewModels.indexOf(trackViewModel);
+            listener.onPlayClicked(trackViewModel,lastClickedPosition);
+            trackViewModel.setPlaying(true);
+
         }
 
-        private void resetPreviousButton()
-        {
-            ImageView previousPlayImageView = findView
-            ImageView previousPauseImageView = (ImageView)itemView.findViewWithTag(pauseImageView.getTag());
-
-            if (previousPlayImageView != null && previousPauseImageView != null)
-            {
-                previousPlayImageView.setVisibility(View.VISIBLE);
-                previousPauseImageView.setVisibility(View.GONE);
-            }
-        }
 
         @OnClick(R.id.pauseImageView)
         void onPauseClicked()
         {
             playImageView.setVisibility(View.VISIBLE);
             pauseImageView.setVisibility(View.GONE);
+            trackViewModel.setPlaying(false);
             listener.onPauseClicked();
         }
     }
@@ -159,7 +185,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
 
     public interface PlaylistAdapterListener
     {
-        void onPlayClicked(Track track, int previousPosition);
+        void onPlayClicked(TrackViewModel trackViewModel, int lastClickedPosition);
 
         void onPauseClicked();
     }

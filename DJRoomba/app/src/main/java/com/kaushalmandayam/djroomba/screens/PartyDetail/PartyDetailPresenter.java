@@ -98,7 +98,7 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
 
     public void onPlayerResumed()
     {
-
+        AudioPlayerManager.INSTANCE.getPlayer().resume(operationCallback);
     }
 
     public void onAccessTokenReceived(String userToken)
