@@ -134,7 +134,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TrackViewH
         @OnClick(R.id.addButton)
         void onAddButtonClicked()
         {
-            listener.onPartyClicked(party, track);
+            listener.onAddSongClicked(party, track);
         }
     }
 
@@ -144,6 +144,6 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.TrackViewH
 
     public interface TrackListAdapterListener
     {
-        void onPartyClicked(Party party, Track track);
+        void onAddSongClicked(Party party, Track track);
     }
 }

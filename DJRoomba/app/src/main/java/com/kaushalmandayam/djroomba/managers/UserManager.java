@@ -1,6 +1,12 @@
 package com.kaushalmandayam.djroomba.managers;
 
+import com.google.firebase.database.DataSnapshot;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
+import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.models.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Kaushal on 6/5/2017.
@@ -19,6 +25,9 @@ public enum UserManager
     private String userCode;
     private String userId;
     private String userImageUrl;
+    private User user;
+    public List<String> hostedParties = new ArrayList<>();
+    private String fireBaseUserId;
 
     //==============================================================================================
     // Class Instance Methods
@@ -64,5 +73,15 @@ public enum UserManager
     public String getUserCode()
     {
         return userCode;
+    }
+
+    public void setFirebaseUserNodeId(String firebaseUserId)
+    {
+        this.fireBaseUserId = firebaseUserId;
+    }
+
+    public void saveUserMataData(DataSnapshot dataSnapshot)
+    {
+        user = dataSnapshot.getValue(User.class);
     }
 }

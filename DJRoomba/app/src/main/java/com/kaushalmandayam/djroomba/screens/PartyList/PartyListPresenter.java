@@ -4,13 +4,16 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.managers.UserManager;
 import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.models.User;
 import com.kaushalmandayam.djroomba.screens.base.BasePresenter;
 import com.kaushalmandayam.djroomba.screens.base.BaseView;
 
@@ -33,36 +36,100 @@ import kaaes.spotify.webapi.android.models.Image;
 
 public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyListView>
 {
+    private static final String TAG = "PartyListPresenter";
     //==============================================================================================
     // Class properties
     //==============================================================================================
 
     private DatabaseReference partyDatabaseReference;
+    private DatabaseReference userDatabaseReference;
     private Party party;
     private String partyId;
+    private User user = new User();
 
     //==============================================================================================
     // Class Instance Methods
     //==============================================================================================
 
+    public void onCreate()
+    {
+        DatabaseReference partyDatabaseReference = FirebaseDatabase.getInstance().getReference()
+                .child("parties");
+
+        partyDatabaseReference.addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                savePartyMatadata(dataSnapshot);
+                view.setupPartyAdapter();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+            }
+        });
+
+        DatabaseReference userDatabaseReference = FirebaseDatabase.getInstance().getReference()
+                .child("users");
+
+        userDatabaseReference.addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                saveUserData(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+            }
+        });
+
+    }
+
     public void onSubmitButtonClicked(String partyName, String partyDesctiption, boolean isPasswordProtected)
+    {
+        updatePartyNode(partyName, partyDesctiption, isPasswordProtected);
+        updateUserNode();
+    }
+
+    private void updateUserNode()
+    {
+        userDatabaseReference = FirebaseDatabase.getInstance().getReference()
+                .child("users");
+        String firebaseUserId = partyDatabaseReference.push().getKey();
+        UserManager.INSTANCE.setFirebaseUserNodeId(firebaseUserId);
+
+        user.setUserId(UserManager.INSTANCE.getUserId());
+
+    }
+
+    private void updatePartyNode(String partyName, String partyDesctiption, boolean isPasswordProtected)
     {
         partyDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("parties");
         String partyId = partyDatabaseReference.push().getKey();
 
+        user.addTohostedParties(partyId);
+
         Party party = new Party();
         party.setPartyDescription(partyDesctiption);
         party.setPartyName(partyName);
         party.setPasswordProtected(isPasswordProtected);
-
         party.setPartyId(partyId);
 
         if (UserManager.INSTANCE.getUserImageUrl()!= null && UserManager.INSTANCE.getUserId() != null)
         {
             party.setPartyHostId(UserManager.INSTANCE.getUserId());
             party.setImageUrl(UserManager.INSTANCE.getUserImageUrl());
-            submitInformation(partyId, party);
+            user.setUserId(UserManager.INSTANCE.getUserId());
+            submitPartyInformation(partyId, party);
+            submitUserInformation(user);
         }
         else
         {
@@ -84,7 +151,6 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
             @Override
             public void run()
             {
-
                 SpotifyApi api = new SpotifyApi();
                 api.setAccessToken(accessToken);
                 SpotifyService spotify = api.getService();
@@ -100,13 +166,16 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
                 }
                 party.setPartyHostId(UserManager.INSTANCE.getUserId());
                 party.setImageUrl(UserManager.INSTANCE.getUserImageUrl());
-                submitInformation(partyId, party);
+                user.setUserId(UserManager.INSTANCE.getUserId());
+                submitPartyInformation(partyId, party);
+                submitUserInformation(user);
+
                 Log.d("Login Presenter", "onLoggedIn: userid" + id);
             }
         });
     }
 
-    private void submitInformation(String partyId, Party party)
+    private void submitPartyInformation(String partyId, Party party)
     {
         // Convert party model to map and add to firebase
         Map<String, Object> partyValues = party.toMap();
@@ -114,6 +183,15 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
         childUpdates.put(partyId, partyValues);
         partyDatabaseReference.updateChildren(childUpdates);
         view.showPartyAdded();
+    }
+
+    private void submitUserInformation(User user)
+    {
+        // Convert user model to map and add to firebase
+        Map<String, Object> userValue = user.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put(user.getUserId(), userValue);
+        userDatabaseReference.updateChildren(childUpdates);
     }
 
     public void onAdapterViewSet()
@@ -130,6 +208,11 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
         PartyManager.INSTANCE.savePartyMataData(dataSnapshot);
     }
 
+    public void saveUserData(DataSnapshot dataSnapshot)
+    {
+        UserManager.INSTANCE.saveUserMataData(dataSnapshot);
+    }
+
     //==============================================================================================
     // View Interface
     //==============================================================================================
@@ -139,5 +222,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
         void showPartyAdded();
 
         void showPartyList(List<Party> parties);
+
+        void setupPartyAdapter();
     }
 }

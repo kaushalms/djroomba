@@ -62,6 +62,7 @@ public enum PartyManager
 
     public void updateParty(Party party)
     {
+        this.party = party;
         partyNodeReference = FirebaseDatabase.getInstance()
                                                 .getReference()
                                                 .child("parties/" + party.getPartyId());

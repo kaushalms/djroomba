@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
+import com.kaushalmandayam.djroomba.managers.UserManager;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.models.TrackViewModel;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
@@ -86,6 +87,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
 
         LoginManager.INSTANCE.setAccesstokenListener(this);
         LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
+
         setupTrackAdapter();
     }
 
@@ -98,7 +100,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     private void setupTrackAdapter()
     {
         playlistRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        playListAdapter = new PlayListAdapter(this, new PlayListAdapter.PlaylistAdapterListener()
+        playListAdapter = new PlayListAdapter(PartyDetailActivity.this, new PlayListAdapter.PlaylistAdapterListener()
         {
             @Override
             public void onPlayClicked(TrackViewModel trackViewModel, int lastClickedPosition)
@@ -199,7 +201,9 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         }
         else if (AudioPlayerManager.INSTANCE.getTrackViewModels() != null)
         {
+            setupTrackAdapter();
             playListAdapter.setTrackViewModels(AudioPlayerManager.INSTANCE.getTrackViewModels());
+            playListAdapter.notifyDataSetChanged();
         }
     }
 }

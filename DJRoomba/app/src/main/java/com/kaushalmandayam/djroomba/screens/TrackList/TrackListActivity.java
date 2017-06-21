@@ -16,8 +16,10 @@ import android.widget.TextView;
 
 import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
+import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.screens.PartyDetail.PartyDetailActivity;
+import com.kaushalmandayam.djroomba.screens.PartyList.PartyListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListPresenter.TrackListView;
 
@@ -123,9 +125,10 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
         tracksAdapter = new TracksAdapter(party, new TracksAdapter.TrackListAdapterListener()
         {
             @Override
-            public void onPartyClicked(Party party, Track track)
+            public void onAddSongClicked(Party party, Track track)
             {
                 presenter.updatePlaylist(party, track);
+                PartyDetailActivity.start(TrackListActivity.this, PartyManager.INSTANCE.getParty());
             }
         });
         tracksRecyclerView.setAdapter(tracksAdapter);

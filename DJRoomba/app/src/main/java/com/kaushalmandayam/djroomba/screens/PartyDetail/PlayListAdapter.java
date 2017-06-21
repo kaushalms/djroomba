@@ -63,6 +63,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
 
     public void setTrackViewModels(List<TrackViewModel> trackViewModels)
     {
+        this.tracks.clear();
         this.trackViewModels.clear();
         this.trackViewModels.addAll(trackViewModels);
         this.notifyDataSetChanged();
@@ -89,7 +90,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     @Override
     public int getItemCount()
     {
-        return tracks.size();
+        return trackViewModels.size();
     }
 
     public void pauseTrack(int lastClickedPosition)

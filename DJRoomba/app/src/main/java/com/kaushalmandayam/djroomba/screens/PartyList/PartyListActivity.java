@@ -20,6 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.models.User;
 import com.kaushalmandayam.djroomba.screens.PartyDetail.PartyDetailActivity;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListPresenter.PartyListView;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
@@ -58,6 +59,7 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     RecyclerView partyListRecyclerView;
 
     private PartyListAdapter partyListAdapter;
+    private User user = new User();
 
     //==============================================================================================
     // static Methods
@@ -80,27 +82,8 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
         setContentView(R.layout.activity_party_list);
         sheet.setVisibility(View.GONE);
         attachPresenter(new PartyListPresenter(), this);
-        DatabaseReference partyDatabaseReference = FirebaseDatabase.getInstance().getReference()
-                .child("parties");
-
-        partyDatabaseReference.addValueEventListener(new ValueEventListener()
-        {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                presenter.savePartyMatadata(dataSnapshot);
-                setupPartyAdapter();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
-            }
-        });
-
+        presenter.onCreate();
     }
-
 
     @Override
     public void onBackPressed()
@@ -112,6 +95,10 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
         }
         super.onBackPressed();
     }
+
+    //==============================================================================================
+    // Click Methods
+    //==============================================================================================
 
     @OnClick(R.id.fab)
     void onClickFab()
@@ -145,7 +132,13 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     // Class instance methods
     //==============================================================================================
 
-    private void setupPartyAdapter()
+
+    //==============================================================================================
+    // view implementations
+    //==============================================================================================
+
+    @Override
+    public void setupPartyAdapter()
     {
         partyListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         partyListAdapter = new PartyListAdapter(new PartyListAdapter.PartyListAdapterListener()
@@ -153,16 +146,13 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
             @Override
             public void onPartyClicked(Party party)
             {
-               PartyDetailActivity.start(PartyListActivity.this, party);
+
+                PartyDetailActivity.start(PartyListActivity.this, party);
             }
         });
         partyListRecyclerView.setAdapter(partyListAdapter);
         presenter.onAdapterViewSet();
     }
-
-    //==============================================================================================
-    // view implementations
-    //==============================================================================================
 
     @Override
     public void showPartyAdded()
