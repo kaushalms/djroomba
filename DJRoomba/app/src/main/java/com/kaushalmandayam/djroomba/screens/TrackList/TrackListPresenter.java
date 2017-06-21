@@ -3,6 +3,11 @@ package com.kaushalmandayam.djroomba.screens.TrackList;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.managers.UserManager;
 import com.kaushalmandayam.djroomba.models.Party;
@@ -30,6 +35,7 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
     //==============================================================================================
 
     List<Track> tracks = new ArrayList<>();
+    private DatabaseReference tracksNodeReference;
 
     void onTrackSearched(final String searchParameter)
     {
@@ -75,10 +81,28 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
         view.populateTrack(tracks);
     }
 
-    public void updatePlaylist(Party party, Track track)
+    public void updatePlaylist(Party party, final Track track)
     {
         party.addTracktoPlaylist(track.id);
         PartyManager.INSTANCE.updateParty(party);
+        tracksNodeReference = FirebaseDatabase.getInstance().getReference()
+                .child("parties/" + PartyManager.INSTANCE.getParty().getPartyId());
+
+        tracksNodeReference.addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                PartyManager.INSTANCE.updateParty(dataSnapshot);
+                view.startPartyDetailActivity(track);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                // do nothing
+            }
+        });
     }
 
     //==============================================================================================
@@ -88,5 +112,7 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
     public interface TrackListView extends BaseView
     {
         void populateTrack(List<Track> tracks);
+
+        void startPartyDetailActivity(Track track);
     }
 }

@@ -115,6 +115,15 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
         });
     }
 
+
+    @Override
+    public void onBackPressed()
+    {
+        super.onBackPressed();
+        PartyDetailActivity.start(TrackListActivity.this, PartyManager.INSTANCE.getParty());
+        finish();
+    }
+
     //==============================================================================================
     // Instance methods
     //==============================================================================================
@@ -128,7 +137,6 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
             public void onAddSongClicked(Party party, Track track)
             {
                 presenter.updatePlaylist(party, track);
-                PartyDetailActivity.start(TrackListActivity.this, PartyManager.INSTANCE.getParty());
             }
         });
         tracksRecyclerView.setAdapter(tracksAdapter);
@@ -165,7 +173,7 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
         }
         else
         {
-            PartyDetailActivity.start(this, party);
+            PartyDetailActivity.start(this, PartyManager.INSTANCE.getParty());
         }
     }
 
@@ -187,5 +195,12 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
         });
 
     }
+
+    @Override
+    public void startPartyDetailActivity(Track track)
+    {
+        PartyDetailActivity.start(TrackListActivity.this, PartyManager.INSTANCE.getParty(), track);
+    }
+
 
 }

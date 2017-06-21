@@ -13,9 +13,10 @@ import com.google.gson.Gson;
 import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
-import com.kaushalmandayam.djroomba.managers.UserManager;
+import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.models.TrackViewModel;
+import com.kaushalmandayam.djroomba.screens.PartyList.PartyListActivity;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 
@@ -54,9 +55,12 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     ImageView playMediaImageView;
 
     private static final String PARTY_KEY = "PARTY_KEY";
+    private static final String TRACK_ADDED_KEY = "TRACK_ADDED_KEY";
     private Party party;
+    private Track addedTrack;
     private PlayListAdapter playListAdapter;
     private int lastClickedPosition;
+    private boolean isTrackAdded;
 
     //==============================================================================================
     // static Methods
@@ -67,6 +71,15 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         Gson gson = new Gson();
         Intent starter = new Intent(context, PartyDetailActivity.class);
         starter.putExtra(PARTY_KEY, gson.toJson(party));
+        context.startActivity(starter);
+    }
+
+    public static void start(Context context, Party party, Track track)
+    {
+        Gson gson = new Gson();
+        Intent starter = new Intent(context, PartyDetailActivity.class);
+        starter.putExtra(PARTY_KEY, gson.toJson(party));
+        starter.putExtra(TRACK_ADDED_KEY, gson.toJson(track));
         context.startActivity(starter);
     }
 
@@ -83,12 +96,36 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
 
         Bundle bundle = getIntent().getExtras();
         Gson gson = new Gson();
-        party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
 
-        LoginManager.INSTANCE.setAccesstokenListener(this);
-        LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
+        party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
+        if (party != null)
+        {
+            PartyManager.INSTANCE.setParty(party);
+        }
+
+        addedTrack = gson.fromJson(bundle.getString(TRACK_ADDED_KEY), Track.class);
+        if (addedTrack != null)
+        {
+            TrackViewModel addedTrackViewModel = new TrackViewModel();
+            addedTrackViewModel.setTrack(addedTrack);
+            addedTrackViewModel.setPlaying(false);
+            AudioPlayerManager.INSTANCE.getTracks().add(addedTrack);
+            AudioPlayerManager.INSTANCE.getTrackViewModels().add(addedTrackViewModel);
+        }
 
         setupTrackAdapter();
+
+        if (addedTrack != null)
+        {
+            playListAdapter.setTrackViewModels(AudioPlayerManager.INSTANCE.getTrackViewModels());
+        }
+        else
+        {
+            LoginManager.INSTANCE.setAccesstokenListener(this);
+            LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
+        }
+
+
     }
 
     @Override
@@ -105,7 +142,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
             @Override
             public void onPlayClicked(TrackViewModel trackViewModel, int lastClickedPosition)
             {
-                if(trackViewModel.isPlaying())
+                if (trackViewModel.isPlaying())
                 {
                     presenter.onPlayerResumed();
                 }
@@ -125,8 +162,29 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
                 playMediaImageView.setVisibility(View.VISIBLE);
                 pauseMediaImageView.setVisibility(View.GONE);
             }
+
+            @Override
+            public void showPauseButton()
+            {
+                playMediaImageView.setVisibility(View.GONE);
+                pauseMediaImageView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void savelastClickedPosition(int lastClickedPosition)
+            {
+                saveLastPlayedPosition(lastClickedPosition);
+            }
         });
         playlistRecyclerView.setAdapter(playListAdapter);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        super.onBackPressed();
+        PartyListActivity.start(this);
+        finish();
     }
 
     private void saveLastPlayedPosition(int lastClickedPosition)
@@ -162,6 +220,37 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         presenter.onPauseClicked();
     }
 
+    @OnClick(R.id.previousImageView)
+    void onPreviousButtonClicked()
+    {
+        if (lastClickedPosition > 0)
+        {
+            playMediaImageView.setVisibility(View.VISIBLE);
+            pauseMediaImageView.setVisibility(View.GONE);
+
+            playListAdapter.playPreviousTrack(lastClickedPosition);
+            lastClickedPosition--;
+            presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTracks().get(lastClickedPosition));
+        }
+
+    }
+
+    @OnClick(R.id.nextImageView)
+    void onNextButtonClicked()
+    {
+        if (lastClickedPosition < AudioPlayerManager.INSTANCE.getTracks().size() - 1)
+        {
+            playMediaImageView.setVisibility(View.VISIBLE);
+            pauseMediaImageView.setVisibility(View.GONE);
+
+            playListAdapter.playNextTrack(lastClickedPosition);
+            lastClickedPosition++;
+            presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTracks().get(lastClickedPosition));
+        }
+
+    }
+
+
     //==============================================================================================
     // view Interface methods
     //==============================================================================================
@@ -182,7 +271,18 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     @Override
     public void onPlaybackEvent(PlayerEvent playerEvent)
     {
+        if(playerEvent == PlayerEvent.kSpPlaybackNotifyTrackDelivered)
+        {
+            if (lastClickedPosition < AudioPlayerManager.INSTANCE.getTracks().size() - 1)
+            {
+                playMediaImageView.setVisibility(View.VISIBLE);
+                pauseMediaImageView.setVisibility(View.GONE);
 
+                playListAdapter.playNextTrack(lastClickedPosition);
+                lastClickedPosition++;
+                presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTracks().get(lastClickedPosition));
+            }
+        }
     }
 
     @Override
@@ -201,9 +301,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         }
         else if (AudioPlayerManager.INSTANCE.getTrackViewModels() != null)
         {
-            setupTrackAdapter();
             playListAdapter.setTrackViewModels(AudioPlayerManager.INSTANCE.getTrackViewModels());
-            playListAdapter.notifyDataSetChanged();
         }
     }
+
 }

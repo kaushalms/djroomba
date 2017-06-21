@@ -1,6 +1,5 @@
 package com.kaushalmandayam.djroomba.screens.PartyDetail;
 
-
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -37,6 +36,7 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
 {
 
     private Player spotifyPlayer;
+    private SpotifyService spotifyService;
 
     //==============================================================================================
     // Class Instance Methods
@@ -46,7 +46,7 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
     {
         final List<String> playListSongs = party.getPartyPlayListSongs();
         final List<Track> tracks = new ArrayList<>();
-        final SpotifyService spotifyService = LoginManager.INSTANCE.getService();
+        spotifyService = LoginManager.INSTANCE.getService();
 
         try
         {
@@ -69,6 +69,7 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
             Log.d("Spotify retrofit error", "getTracks: " + error.getMessage());
         }
     }
+
 
     public void onPlayClicked(Track track)
     {
@@ -120,6 +121,8 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
             }
         });
     }
+
+
 
     //==============================================================================================
     // View Interface

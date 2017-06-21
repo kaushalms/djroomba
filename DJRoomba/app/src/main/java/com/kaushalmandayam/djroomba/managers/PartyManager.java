@@ -68,4 +68,10 @@ public enum PartyManager
                                                 .child("parties/" + party.getPartyId());
         partyNodeReference.setValue(party);
     }
+
+    public void updateParty(DataSnapshot dataSnapshot)
+    {
+        Party party = dataSnapshot.getValue(Party.class);
+        this.party = party;
+    }
 }

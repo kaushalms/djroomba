@@ -107,6 +107,24 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         notifyItemChanged(lastClickedPosition);
     }
 
+    public void playPreviousTrack(int lastClickedPosition)
+    {
+        trackViewModels.get(lastClickedPosition).setPlaying(false);
+        lastClickedPosition--;
+        trackViewModels.get(lastClickedPosition).setPlaying(true);
+        AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
+        notifyDataSetChanged();
+    }
+
+    public void playNextTrack(int lastClickedPosition)
+    {
+        trackViewModels.get(lastClickedPosition).setPlaying(false);
+        lastClickedPosition++;
+        trackViewModels.get(lastClickedPosition).setPlaying(true);
+        AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
+        notifyDataSetChanged();
+    }
+
     //==============================================================================================
     // View Holder
     //==============================================================================================
@@ -135,8 +153,12 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
             this.trackViewModel = trackViewModel;
             if (trackViewModel.isPlaying())
             {
+                lastClickedPosition = trackViewModels.lastIndexOf(trackViewModel);
+                listener.savelastClickedPosition(lastClickedPosition);
                 playImageView.setVisibility(View.GONE);
                 pauseImageView.setVisibility(View.VISIBLE);
+                trackTextView.setTextColor(ContextCompat.getColor(context, R.color.primary));
+                listener.showPauseButton();
             }
             else
             {
@@ -202,5 +224,9 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         void onPlayClicked(TrackViewModel trackViewModel, int lastClickedPosition);
 
         void onPauseClicked();
+
+        void showPauseButton();
+
+        void savelastClickedPosition(int lastClickedPosition);
     }
 }

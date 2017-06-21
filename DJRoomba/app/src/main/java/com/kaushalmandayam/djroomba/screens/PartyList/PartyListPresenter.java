@@ -53,7 +53,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
 
     public void onCreate()
     {
-        DatabaseReference partyDatabaseReference = FirebaseDatabase.getInstance().getReference()
+        partyDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("parties");
 
         partyDatabaseReference.addValueEventListener(new ValueEventListener()
@@ -63,6 +63,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
             {
                 savePartyMatadata(dataSnapshot);
                 view.setupPartyAdapter();
+                partyDatabaseReference = null;
             }
 
             @Override
@@ -72,7 +73,8 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
             }
         });
 
-        DatabaseReference userDatabaseReference = FirebaseDatabase.getInstance().getReference()
+
+        userDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("users");
 
         userDatabaseReference.addValueEventListener(new ValueEventListener()
