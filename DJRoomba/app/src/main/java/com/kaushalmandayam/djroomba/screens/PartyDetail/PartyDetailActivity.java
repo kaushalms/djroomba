@@ -38,10 +38,10 @@ import kaaes.spotify.webapi.android.models.Track;
  * @author Kaushal
  */
 
-public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
-        implements PartyDetailPresenter.PartyDetailView, SpotifyPlayer.NotificationCallback,
+public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> implements
+        PartyDetailPresenter.PartyDetailView,
+        SpotifyPlayer.NotificationCallback,
         LoginManager.AccessTokenListener
-
 {
     //==============================================================================================
     // class properties
@@ -57,10 +57,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     private static final String PARTY_KEY = "PARTY_KEY";
     private static final String TRACK_ADDED_KEY = "TRACK_ADDED_KEY";
     private Party party;
-    private Track addedTrack;
     private PlayListAdapter playListAdapter;
     private int lastClickedPosition;
-    private boolean isTrackAdded;
 
     //==============================================================================================
     // static Methods
@@ -68,8 +66,11 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
 
     public static void start(Context context, Party party)
     {
+        AudioPlayerManager.INSTANCE.clearTracks();
         Gson gson = new Gson();
         Intent starter = new Intent(context, PartyDetailActivity.class);
+        starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         starter.putExtra(PARTY_KEY, gson.toJson(party));
         context.startActivity(starter);
     }
@@ -78,6 +79,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     {
         Gson gson = new Gson();
         Intent starter = new Intent(context, PartyDetailActivity.class);
+        starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         starter.putExtra(PARTY_KEY, gson.toJson(party));
         starter.putExtra(TRACK_ADDED_KEY, gson.toJson(track));
         context.startActivity(starter);
@@ -103,7 +106,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
             PartyManager.INSTANCE.setParty(party);
         }
 
-        addedTrack = gson.fromJson(bundle.getString(TRACK_ADDED_KEY), Track.class);
+        Track addedTrack = gson.fromJson(bundle.getString(TRACK_ADDED_KEY), Track.class);
         if (addedTrack != null)
         {
             TrackViewModel addedTrackViewModel = new TrackViewModel();
@@ -121,7 +124,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         }
         else
         {
-            LoginManager.INSTANCE.subscribeStateListener(this);
+            LoginManager.INSTANCE.subscribeAccessTokenListener(this);
             LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
         }
     }
@@ -180,7 +183,6 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     @Override
     public void onBackPressed()
     {
-        super.onBackPressed();
         PartyListActivity.start(this);
         finish();
     }
@@ -189,7 +191,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     public void onPause()
     {
         super.onPause();
-        LoginManager.INSTANCE.unSubscribeStateListener(this);
+        LoginManager.INSTANCE.unSubscribeAccessTokenListener(this);
     }
 
     private void saveLastPlayedPosition(int lastClickedPosition)
@@ -276,7 +278,9 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     @Override
     public void onPlaybackEvent(PlayerEvent playerEvent)
     {
-        if(playerEvent == PlayerEvent.kSpPlaybackNotifyTrackDelivered)
+        // todo move to next song on finish
+
+        if (playerEvent == PlayerEvent.kSpPlaybackNotifyTrackDelivered)
         {
             if (lastClickedPosition < AudioPlayerManager.INSTANCE.getTracks().size() - 1)
             {
@@ -293,7 +297,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
     @Override
     public void onPlaybackError(Error error)
     {
-
+        // do nothing
     }
 
     @Override

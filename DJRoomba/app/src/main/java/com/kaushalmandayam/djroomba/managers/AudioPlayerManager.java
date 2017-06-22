@@ -59,4 +59,9 @@ public enum AudioPlayerManager
     {
         return tracks;
     }
+
+    public void clearTracks()
+    {
+        tracks = null;
+    }
 }

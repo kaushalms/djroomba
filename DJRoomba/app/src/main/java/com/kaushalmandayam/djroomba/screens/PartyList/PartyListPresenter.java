@@ -62,7 +62,10 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
             public void onDataChange(DataSnapshot dataSnapshot)
             {
                 savePartyMatadata(dataSnapshot);
-                view.setupPartyAdapter();
+                if (view != null)
+                {
+                    view.setupPartyAdapter();
+                }
                 partyDatabaseReference = null;
             }
 
@@ -83,6 +86,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
             public void onDataChange(DataSnapshot dataSnapshot)
             {
                 saveUserData(dataSnapshot);
+                // todo refresh adapter
             }
 
             @Override
@@ -104,7 +108,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
     {
         userDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("users");
-        String firebaseUserId = partyDatabaseReference.push().getKey();
+        String firebaseUserId = userDatabaseReference.push().getKey();
         UserManager.INSTANCE.setFirebaseUserNodeId(firebaseUserId);
 
         user.setUserId(UserManager.INSTANCE.getUserId());

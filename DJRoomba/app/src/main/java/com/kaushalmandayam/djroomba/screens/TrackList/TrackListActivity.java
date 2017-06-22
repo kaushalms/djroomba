@@ -65,6 +65,8 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
     {
         Gson gson = new Gson();
         Intent starter = new Intent(context, TrackListActivity.class);
+        starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         starter.putExtra(PARTY_KEY, gson.toJson(party));
         context.startActivity(starter);
     }
@@ -119,7 +121,6 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
     @Override
     public void onBackPressed()
     {
-        super.onBackPressed();
         PartyDetailActivity.start(TrackListActivity.this, PartyManager.INSTANCE.getParty());
         finish();
     }
@@ -174,9 +175,9 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
         else
         {
             PartyDetailActivity.start(this, PartyManager.INSTANCE.getParty());
+            finish();
         }
     }
-
 
     //==============================================================================================
     // View method implementation
@@ -200,7 +201,6 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
     public void startPartyDetailActivity(Track track)
     {
         PartyDetailActivity.start(TrackListActivity.this, PartyManager.INSTANCE.getParty(), track);
+        finish();
     }
-
-
 }

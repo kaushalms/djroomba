@@ -176,7 +176,7 @@ public enum LoginManager
     // Listeners Methods
     // =============================================================================================
 
-    public void subscribeStateListener(AccessTokenListener listener)
+    public void subscribeAccessTokenListener(AccessTokenListener listener)
     {
         if (!listeners.contains(listener))
         {
@@ -184,7 +184,7 @@ public enum LoginManager
         }
     }
 
-    public void unSubscribeStateListener(AccessTokenListener listener)
+    public void unSubscribeAccessTokenListener(AccessTokenListener listener)
     {
         listeners.remove(listener);
     }

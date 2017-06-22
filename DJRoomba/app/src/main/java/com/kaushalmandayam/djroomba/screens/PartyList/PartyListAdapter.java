@@ -43,6 +43,9 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
     {
         this.listener = listener;
     }
+    //==============================================================================================
+    // Instance methods
+    //==============================================================================================
 
     public void setData(List<Party> parties)
     {
@@ -50,6 +53,10 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
         this.parties.addAll(parties);
         this.notifyDataSetChanged();
     }
+
+    //==============================================================================================
+    // Adapter methods
+    //==============================================================================================
 
     @Override
     public PartyViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
@@ -82,6 +89,10 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
     {
         return parties.size();
     }
+
+    //==============================================================================================
+    // View holder class
+    //==============================================================================================
 
     public class PartyViewHolder extends RecyclerView.ViewHolder
     {

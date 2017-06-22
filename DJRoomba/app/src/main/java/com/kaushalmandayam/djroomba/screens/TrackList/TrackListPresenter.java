@@ -94,7 +94,10 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
             public void onDataChange(DataSnapshot dataSnapshot)
             {
                 PartyManager.INSTANCE.updateParty(dataSnapshot);
-                view.startPartyDetailActivity(track);
+                if (view != null)
+                {
+                    view.startPartyDetailActivity(track);
+                }
             }
 
             @Override

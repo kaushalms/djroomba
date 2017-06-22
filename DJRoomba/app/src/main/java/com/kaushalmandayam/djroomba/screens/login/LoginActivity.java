@@ -18,7 +18,6 @@ import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
-import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
@@ -37,11 +36,14 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         ConnectionStateCallback,
         SpotifyPlayer.NotificationCallback
 {
+    //==============================================================================================
+    // Class Properties
+    //==============================================================================================
+
     // Request code that will be used to verify if the result comes from correct activity
     // Can be any integer
     private static final int REQUEST_CODE = 1337;
     private static final String TAG = "LoginActivity";
-    private Player spotifyPlayer;
 
     //==============================================================================================
     // Static Methods
@@ -76,7 +78,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     protected void onActivityResult(int requestCode, int resultCode, Intent intent)
     {
         super.onActivityResult(requestCode, resultCode, intent);
-        LoginManager.INSTANCE.subscribeStateListener(this);
+        LoginManager.INSTANCE.subscribeAccessTokenListener(this);
         presenter.onSpotifyAuthReceived(requestCode, resultCode, intent);
     }
 
@@ -85,7 +87,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     public void onPause()
     {
         super.onPause();
-        LoginManager.INSTANCE.unSubscribeStateListener(this);
+        LoginManager.INSTANCE.unSubscribeAccessTokenListener(this);
     }
 
     //==============================================================================================
@@ -115,13 +117,13 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     @Override
     public void onTemporaryError()
     {
-
+        // do nothing
     }
 
     @Override
     public void onConnectionMessage(String s)
     {
-
+        // do nothing
     }
 
     //==============================================================================================
@@ -131,13 +133,13 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     @Override
     public void onPlaybackEvent(PlayerEvent playerEvent)
     {
-
+        // do nothing
     }
 
     @Override
     public void onPlaybackError(Error error)
     {
-
+        // do nothing
     }
 
 
@@ -173,7 +175,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     {
         Log.d("login", "onActivityResult: success");
         Config playerConfig = new Config(DjRoombaApplication.getContext(), userToken, CLIENT_ID);
-        spotifyPlayer = Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver()
+        Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver()
         {
             @Override
             public void onInitialized(SpotifyPlayer spotifyPlayer)

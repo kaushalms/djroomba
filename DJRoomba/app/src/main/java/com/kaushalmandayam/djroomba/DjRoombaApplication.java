@@ -34,12 +34,12 @@ public class DjRoombaApplication extends MultiDexApplication implements GlideMod
         context = getApplicationContext();
         bus = new MainThreadBus();
 
-
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks()
         {
             @Override
             public void onActivityCreated(Activity activity, Bundle bundle)
             {
+
             }
 
             @Override

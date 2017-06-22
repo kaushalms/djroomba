@@ -31,6 +31,11 @@ import kaaes.spotify.webapi.android.models.Track;
 
 public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.PlaylistViewHolder>
 {
+
+    //==============================================================================================
+    // Class Properties
+    //==============================================================================================
+
     private PlayListAdapter.PlaylistAdapterListener listener;
     private List<Track> tracks = new ArrayList<>();
     private List<TrackViewModel> trackViewModels = new ArrayList<>();
@@ -92,6 +97,10 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     {
         return trackViewModels.size();
     }
+
+    //==============================================================================================
+    // Instance methods
+    //==============================================================================================
 
     public void pauseTrack(int lastClickedPosition)
     {

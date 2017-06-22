@@ -12,19 +12,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.example.kaushalmandayam.djroomba.R;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.kaushalmandayam.djroomba.Utils.PreferenceUtils;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
-import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.models.Party;
-import com.kaushalmandayam.djroomba.models.User;
 import com.kaushalmandayam.djroomba.screens.PartyDetail.PartyDetailActivity;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListPresenter.PartyListView;
-import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.konifar.fab_transformation.FabTransformation;
 
@@ -44,7 +35,12 @@ import butterknife.OnClick;
 public class PartyListActivity extends BaseActivity<PartyListPresenter> implements PartyListView,
         LoginManager.AccessTokenListener
 {
+    //==============================================================================================
+    // Class Properties
+    //==============================================================================================
+
     private static final String TAG = "PartyListActivity";
+
     @BindView(R.id.fab)
     FloatingActionButton fab;
     @BindView(R.id.overlay)
@@ -61,7 +57,6 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     RecyclerView partyListRecyclerView;
 
     private PartyListAdapter partyListAdapter;
-    private User user = new User();
 
     //==============================================================================================
     // static Methods
@@ -69,8 +64,10 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
 
     public static void start(Context context)
     {
-        Intent starter = new Intent(context, PartyListActivity.class);
-        context.startActivity(starter);
+        Intent intent = new Intent(context, PartyListActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     //==============================================================================================
@@ -95,16 +92,15 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
             FabTransformation.with(fab).setOverlay(overlay).transformFrom(sheet);
             return;
         }
-        super.onBackPressed();
+        finish();
     }
 
     @Override
     public void onPause()
     {
         super.onPause();
-        LoginManager.INSTANCE.unSubscribeStateListener(this);
+        LoginManager.INSTANCE.unSubscribeAccessTokenListener(this);
     }
-
 
     //==============================================================================================
     // Click Methods
@@ -131,17 +127,11 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     @OnClick(R.id.submitButton)
     void onSubmitButtonClicked()
     {
-        LoginManager.INSTANCE.subscribeStateListener(this);
+        LoginManager.INSTANCE.subscribeAccessTokenListener(this);
         presenter.onSubmitButtonClicked(partyNameEditText.getText().toString(),
-                                        partyDescriptionEditText.getText().toString(),
-                                        passwordCheckBox.isSelected());
+                partyDescriptionEditText.getText().toString(),
+                passwordCheckBox.isSelected());
     }
-
-
-    //==============================================================================================
-    // Class instance methods
-    //==============================================================================================
-
 
     //==============================================================================================
     // view implementations
@@ -156,7 +146,6 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
             @Override
             public void onPartyClicked(Party party)
             {
-
                 PartyDetailActivity.start(PartyListActivity.this, party);
             }
         });

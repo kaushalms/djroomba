@@ -35,8 +35,10 @@ import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
 
 public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.PartyDetailView>
 {
+    //==============================================================================================
+    // Class properties
+    //==============================================================================================
 
-    private Player spotifyPlayer;
     private SpotifyService spotifyService;
 
     //==============================================================================================
@@ -107,7 +109,7 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
     {
         Log.d("login", "onActivityResult: success");
         Config playerConfig = new Config(DjRoombaApplication.getContext(), userToken, CLIENT_ID);
-        spotifyPlayer = Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver()
+        Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver()
         {
             @Override
             public void onInitialized(SpotifyPlayer spotifyPlayer)
