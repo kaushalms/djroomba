@@ -31,8 +31,6 @@ public abstract class BaseActivity<T> extends AppCompatActivity
     //==============================================================================================
 
     protected T presenter;
-    public Toolbar toolbar;
-    protected ActionBar actionBar;
     protected Toast toast;
     protected ProgressDialog progressDialog;
 

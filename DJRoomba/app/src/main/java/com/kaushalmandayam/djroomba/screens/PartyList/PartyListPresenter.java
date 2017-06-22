@@ -236,8 +236,12 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
         this.party = party;
         if (UserManager.INSTANCE.getUserId() != null)
         {
-            party.partyGuestIds.add(UserManager.INSTANCE.getUserId());
-            PartyManager.INSTANCE.updateParty(party);
+            if(!party.partyGuestIds.contains(UserManager.INSTANCE.getUserId()))
+            {
+                party.partyGuestIds.add(UserManager.INSTANCE.getUserId());
+                PartyManager.INSTANCE.updateParty(party);
+            }
+            view.startPartyDetailActivity(party);
         }
         else
         {

@@ -107,6 +107,7 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
             {
                 if (!searchParameter.toString().isEmpty())
                 {
+                    showProgressDialog("loading");
                     presenter.onTrackSearched(searchParameter.toString());
                 }
                 else
@@ -186,6 +187,7 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
     @Override
     public void populateTrack(final List<Track> tracks)
     {
+        dismissProgressDialog();
         runOnUiThread(new Runnable()
         {
             @Override

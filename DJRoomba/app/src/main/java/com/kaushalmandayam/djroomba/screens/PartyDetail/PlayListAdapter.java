@@ -137,6 +137,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         trackViewModels.get(lastClickedPosition).setPlaying(false);
         lastClickedPosition--;
         trackViewModels.get(lastClickedPosition).setPlaying(true);
+        AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModels.get(lastClickedPosition));
         AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
         notifyDataSetChanged();
     }
@@ -146,6 +147,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         trackViewModels.get(lastClickedPosition).setPlaying(false);
         lastClickedPosition++;
         trackViewModels.get(lastClickedPosition).setPlaying(true);
+        AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModels.get(lastClickedPosition));
         AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
         notifyDataSetChanged();
     }
@@ -187,7 +189,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
             }
             else
             {
-                trackTextView.setTextColor(ContextCompat.getColor(context, R.color.black));
+                trackTextView.setTextColor(ContextCompat.getColor(context, R.color.white));
                 playImageView.setVisibility(View.VISIBLE);
                 pauseImageView.setVisibility(View.GONE);
             }

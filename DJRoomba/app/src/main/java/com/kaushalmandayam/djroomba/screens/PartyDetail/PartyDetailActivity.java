@@ -3,10 +3,13 @@ package com.kaushalmandayam.djroomba.screens.PartyDetail;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
@@ -53,6 +56,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     ImageView pauseMediaImageView;
     @BindView(R.id.playMediaImageView)
     ImageView playMediaImageView;
+    @BindView(R.id.songProgressBar)
+    ProgressBar songProgressBar;
 
     private static final String PARTY_KEY = "PARTY_KEY";
     private static final String TRACK_ADDED_KEY = "TRACK_ADDED_KEY";
@@ -129,6 +134,34 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         }
     }
 
+    private void setupProgressBar()
+    {
+        int maxSongLength = (int) (AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().getTrack().duration_ms/1000);
+        songProgressBar.setMax(maxSongLength);
+        songProgressBar.setProgress(0);
+        CountDownTimer countDownTimer = new CountDownTimer(maxSongLength * 1000, 1000)
+        {
+            int i = 0;
+
+            @Override
+            public void onTick(long millisUntilFinished)
+            {
+                Log.v("Log_tag", "Tick of Progress" + i + millisUntilFinished);
+                i++;
+                songProgressBar.setProgress(i);
+
+            }
+
+            @Override
+            public void onFinish()
+            {
+                songProgressBar.setProgress(i);
+            }
+        };
+        countDownTimer.start();
+
+    }
+
     @Override
     public void onResume()
     {
@@ -143,6 +176,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             @Override
             public void onPlayClicked(TrackViewModel trackViewModel, int lastClickedPosition)
             {
+                setupProgressBar();
                 if (trackViewModel.isPlaying())
                 {
                     presenter.onPlayerResumed();

@@ -1,5 +1,9 @@
 package com.kaushalmandayam.djroomba.screens.PartyList;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.example.kaushalmandayam.djroomba.R;
 import com.kaushalmandayam.djroomba.models.Party;
 
@@ -28,10 +33,12 @@ import butterknife.ButterKnife;
 
 public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.PartyViewHolder>
 {
+
     //==============================================================================================
     // Class Properties
-    //==============================================================================================
+    //==============================================================================================\
 
+    private final Context context;
     private List<Party> parties = new ArrayList<>();
     private PartyListAdapterListener listener;
 
@@ -39,8 +46,9 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
     // Constructor
     //==============================================================================================
 
-    public PartyListAdapter(PartyListAdapter.PartyListAdapterListener listener)
+    public PartyListAdapter(Context context, PartyListAdapter.PartyListAdapterListener listener)
     {
+        this.context = context;
         this.listener = listener;
     }
     //==============================================================================================
@@ -113,17 +121,30 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
         {
             Glide.with(partyImageView.getContext())
                     .load(party.getImageUrl())
+                    .asBitmap()
                     .placeholder(R.drawable.ic_avatar_empty_40_px)
                     .dontAnimate()
-                    .into(partyImageView);
+                    .into(new BitmapImageViewTarget(partyImageView)
+                    {
+                        @Override
+                        protected void setResource(Bitmap resource)
+                        {
+                            RoundedBitmapDrawable circularBitmapDrawable =
+                                    RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                            circularBitmapDrawable.setCircular(true);
+                            partyImageView.setImageDrawable(circularBitmapDrawable);
+                        }
+                    });
 
             partyNameTextView.setText(party.getPartyName());
         }
+
+
     }
 
-    //==============================================================================================
-    // Adapter listener Interface
-    //==============================================================================================
+//==============================================================================================
+// Adapter listener Interface
+//==============================================================================================
 
     public interface PartyListAdapterListener
     {

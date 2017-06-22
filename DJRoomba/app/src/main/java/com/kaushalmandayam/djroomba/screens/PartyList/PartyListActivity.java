@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -55,6 +57,8 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     CheckBox passwordCheckBox;
     @BindView(R.id.partyListRecyclerView)
     RecyclerView partyListRecyclerView;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     private PartyListAdapter partyListAdapter;
 
@@ -81,6 +85,8 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
         setContentView(R.layout.activity_party_list);
         sheet.setVisibility(View.GONE);
         attachPresenter(new PartyListPresenter(), this);
+        toolbar.setTitle("DJ Roomba");
+        toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
         presenter.onCreate();
     }
 
@@ -154,7 +160,7 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     public void setupPartyAdapter()
     {
         partyListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        partyListAdapter = new PartyListAdapter(new PartyListAdapter.PartyListAdapterListener()
+        partyListAdapter = new PartyListAdapter(this, new PartyListAdapter.PartyListAdapterListener()
         {
             @Override
             public void onJoinButtonClicked(Party party)
@@ -170,7 +176,7 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     @Override
     public void startPartyDetailActivity(Party party)
     {
-        PartyDetailActivity.start(PartyListActivity.this, party);
+        PartyDetailActivity.start(this, party);
     }
 
     @Override

@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@color/black"
                 android:orientation="vertical">
 
     <include
@@ -12,11 +13,17 @@
         android:id="@+id/playlistRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/searchToolbar"
-        android:layout_above="@+id/mediaPlayerLayout">
+        android:layout_above="@+id/mediaPlayerLayout"
+        android:layout_below="@+id/searchToolbar">
 
     </android.support.v7.widget.RecyclerView>
 
+    <ProgressBar
+        android:id="@+id/songProgressBar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:layout_above="@id/mediaPlayerLayout" />
 
     <LinearLayout
         android:id="@+id/mediaPlayerLayout"
@@ -33,7 +40,6 @@
             android:layout_height="50dp"
             android:src="@drawable/ic_skip_previous_black_24dp" />
 
-
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -47,13 +53,13 @@
                 android:src="@drawable/ic_play_arrow_black_24dp" />
 
             <ImageView
-                android:visibility="gone"
                 android:id="@+id/pauseMediaImageView"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginStart="20dp"
-                android:src="@drawable/ic_pause_circle_outline_black_24dp" />
+                android:src="@drawable/ic_pause_circle_outline_black_24dp"
+                android:visibility="gone" />
 
         </RelativeLayout>
 
