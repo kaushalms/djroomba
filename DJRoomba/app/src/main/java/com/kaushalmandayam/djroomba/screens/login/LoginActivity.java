@@ -33,7 +33,7 @@ import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
  */
 
 public class LoginActivity extends BaseActivity<LoginPresenter> implements LoginView,
-        LoginManager.RefreshTokenListener,
+        LoginManager.AccessTokenListener,
         ConnectionStateCallback,
         SpotifyPlayer.NotificationCallback
 {
@@ -76,8 +76,16 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     protected void onActivityResult(int requestCode, int resultCode, Intent intent)
     {
         super.onActivityResult(requestCode, resultCode, intent);
-        LoginManager.INSTANCE.setRefreshTokenListener(this);
+        LoginManager.INSTANCE.subscribeStateListener(this);
         presenter.onSpotifyAuthReceived(requestCode, resultCode, intent);
+    }
+
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        LoginManager.INSTANCE.unSubscribeStateListener(this);
     }
 
     //==============================================================================================

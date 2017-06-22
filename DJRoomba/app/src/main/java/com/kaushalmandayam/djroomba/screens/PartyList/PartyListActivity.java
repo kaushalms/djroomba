@@ -42,7 +42,7 @@ import butterknife.OnClick;
  */
 
 public class PartyListActivity extends BaseActivity<PartyListPresenter> implements PartyListView,
-        LoginManager.PartyListAccessTokenListener
+        LoginManager.AccessTokenListener
 {
     private static final String TAG = "PartyListActivity";
     @BindView(R.id.fab)
@@ -98,6 +98,13 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
         super.onBackPressed();
     }
 
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        LoginManager.INSTANCE.unSubscribeStateListener(this);
+    }
+
 
     //==============================================================================================
     // Click Methods
@@ -124,7 +131,7 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     @OnClick(R.id.submitButton)
     void onSubmitButtonClicked()
     {
-        LoginManager.INSTANCE.setPartyListAccessTokenListener(this);
+        LoginManager.INSTANCE.subscribeStateListener(this);
         presenter.onSubmitButtonClicked(partyNameEditText.getText().toString(),
                                         partyDescriptionEditText.getText().toString(),
                                         passwordCheckBox.isSelected());

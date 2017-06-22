@@ -121,11 +121,9 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         }
         else
         {
-            LoginManager.INSTANCE.setAccesstokenListener(this);
+            LoginManager.INSTANCE.subscribeStateListener(this);
             LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
         }
-
-
     }
 
     @Override
@@ -185,6 +183,13 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter>
         super.onBackPressed();
         PartyListActivity.start(this);
         finish();
+    }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        LoginManager.INSTANCE.unSubscribeStateListener(this);
     }
 
     private void saveLastPlayedPosition(int lastClickedPosition)

@@ -11,6 +11,8 @@ import com.kaushalmandayam.djroomba.models.RefreshTokenModel;
 import com.kaushalmandayam.djroomba.net.DjRoombaApi;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -31,12 +33,28 @@ import static com.kaushalmandayam.djroomba.Constants.REDIRECT_URI;
 
 public enum LoginManager
 {
+    //==============================================================================================
+    // Class Properties
+    //==============================================================================================
+
     INSTANCE;
-    RefreshTokenListener refreshTokenListener;
-    AccessTokenListener accessTokenListener;
-    PartyListAccessTokenListener partyListAccessTokenListener;
-    final SpotifyApi api = new SpotifyApi();
-    final SpotifyService spotifyService = api.getService();
+
+    private List<AccessTokenListener> listeners;
+    private final SpotifyApi api = new SpotifyApi();
+    private final SpotifyService spotifyService = api.getService();
+
+    //==============================================================================================
+    // Constructor
+    //==============================================================================================
+
+    LoginManager()
+    {
+        listeners = new ArrayList<>();
+    }
+
+    //==============================================================================================
+    // Class Instance Methods
+    //==============================================================================================
 
     public void getRefreshToken(String accessCode)
     {
@@ -106,27 +124,9 @@ public enum LoginManager
                                 UserManager.INSTANCE.setUserAccessToken(parseAccessTokenResponse(bodyString));
                                 api.setAccessToken(UserManager.INSTANCE.getUserToken());
 
+
                                 // Listener for login Activity
-                                if (refreshTokenListener != null)
-                                {
-                                    refreshTokenListener.setAccessToken(UserManager.INSTANCE.getUserToken());
-                                }
-
-                                // Listener for partyDetail Activity
-                                if (accessTokenListener != null)
-                                {
-                                    accessTokenListener.setAccessToken(UserManager.INSTANCE.getUserToken());
-                                }
-
-                                // Listener for partyList Activity
-                                if (partyListAccessTokenListener != null)
-                                {
-                                    partyListAccessTokenListener.setAccessToken(UserManager.INSTANCE.getUserToken());
-                                }
-
-                                refreshTokenListener = null;
-                                accessTokenListener = null;
-                                partyListAccessTokenListener = null;
+                                setAccessToken(UserManager.INSTANCE.getUserToken());
                             }
                         }
                     }
@@ -137,6 +137,14 @@ public enum LoginManager
                         Log.d("refresh token", "onError");
                     }
                 });
+    }
+
+    public void setAccessToken(String accessToken)
+    {
+        for (AccessTokenListener listener : listeners)
+        {
+            listener.setAccessToken(accessToken);
+        }
     }
 
     private String parseAccessTokenResponse(String bodyString)
@@ -153,6 +161,10 @@ public enum LoginManager
         return refreshTokenModel.refresh_token;
     }
 
+    public SpotifyService getService()
+    {
+        return spotifyService;
+    }
 
     public String getEncodedHeaderString()
     {
@@ -160,39 +172,31 @@ public enum LoginManager
         return "Basic " + encodedClientSecret;
     }
 
-    public void setRefreshTokenListener(RefreshTokenListener refreshTokenListener)
+    // =============================================================================================
+    // Listeners Methods
+    // =============================================================================================
+
+    public void subscribeStateListener(AccessTokenListener listener)
     {
-        this.refreshTokenListener = refreshTokenListener;
+        if (!listeners.contains(listener))
+        {
+            listeners.add(listener);
+        }
     }
 
-    public SpotifyService getService()
+    public void unSubscribeStateListener(AccessTokenListener listener)
     {
-        return spotifyService;
+        listeners.remove(listener);
     }
 
-    public void setAccesstokenListener(AccessTokenListener accesstokenListener)
-    {
-        this.accessTokenListener = accesstokenListener;
-    }
-
-    public void setPartyListAccessTokenListener(PartyListAccessTokenListener partyListAccessTokenListener)
-    {
-        this.partyListAccessTokenListener = partyListAccessTokenListener;
-    }
-
+    // =============================================================================================
+    // Listener Interface
+    // =============================================================================================
 
     public interface AccessTokenListener
     {
         void setAccessToken(String userToken);
     }
 
-    public interface RefreshTokenListener
-    {
-        void setAccessToken(String userToken);
-    }
 
-    public interface PartyListAccessTokenListener
-    {
-        void setAccessToken(String userToken);
-    }
 }
