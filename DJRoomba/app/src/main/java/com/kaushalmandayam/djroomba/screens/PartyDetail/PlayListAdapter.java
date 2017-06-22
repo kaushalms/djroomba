@@ -41,6 +41,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     private List<TrackViewModel> trackViewModels = new ArrayList<>();
     private int lastClickedPosition;
     private Context context;
+    private TrackViewModel currentTrackViewModel;
 
     //==============================================================================================
     // Constructor
@@ -50,6 +51,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     {
         this.listener = listener;
         this.context = context;
+        currentTrackViewModel = AudioPlayerManager.INSTANCE.getCurrentTrackViewModel();
     }
 
     public void setData(List<Track> tracks)
@@ -89,6 +91,14 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     public void onBindViewHolder(PlaylistViewHolder holder, int position)
     {
         final TrackViewModel trackViewModel = trackViewModels.get(position);
+        if (currentTrackViewModel != null)
+        {
+            if (trackViewModel.getTrack().id.equals(currentTrackViewModel.getTrack().id))
+            {
+                trackViewModel.setPlaying(true);
+            }
+        }
+
         holder.load(trackViewModel);
     }
 
@@ -211,13 +221,14 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
             pauseImageView.setVisibility(View.VISIBLE);
             trackTextView.setTextColor(ContextCompat.getColor(context, R.color.primary));
             lastClickedPosition = trackViewModels.indexOf(trackViewModel);
-            listener.onPlayClicked(trackViewModel,lastClickedPosition);
+            listener.onPlayClicked(trackViewModel, lastClickedPosition);
             trackViewModel.setPlaying(true);
         }
 
         @OnClick(R.id.pauseImageView)
         void onPauseClicked()
         {
+            trackViewModels.get(lastClickedPosition).setPlaying(false);
             playImageView.setVisibility(View.VISIBLE);
             pauseImageView.setVisibility(View.GONE);
             listener.onPauseClicked();

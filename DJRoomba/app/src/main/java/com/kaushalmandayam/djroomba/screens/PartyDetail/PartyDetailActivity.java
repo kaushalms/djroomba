@@ -151,6 +151,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
                 {
                     presenter.onPlayClicked(trackViewModel.getTrack());
                 }
+                AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModel);
                 saveLastPlayedPosition(lastClickedPosition);
                 playMediaImageView.setVisibility(View.GONE);
                 pauseMediaImageView.setVisibility(View.VISIBLE);

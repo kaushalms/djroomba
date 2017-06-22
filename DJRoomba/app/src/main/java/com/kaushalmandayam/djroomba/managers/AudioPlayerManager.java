@@ -23,22 +23,22 @@ public enum AudioPlayerManager
 
     private Player player;
     private List<Track> tracks;
+    private TrackViewModel currentTrackViewModel;
+    private List<TrackViewModel> trackViewModels;
+
+    //==============================================================================================
+    // Class Instance Methods
+    //==============================================================================================
 
     public List<TrackViewModel> getTrackViewModels()
     {
         return trackViewModels;
     }
 
-    private List<TrackViewModel> trackViewModels;
-
     public void setTracks(List<Track> tracks)
     {
         this.tracks = tracks;
     }
-
-    //==============================================================================================
-    // Class Instance Methods
-    //==============================================================================================
 
     public Player getPlayer()
     {
@@ -63,5 +63,15 @@ public enum AudioPlayerManager
     public void clearTracks()
     {
         tracks = null;
+    }
+
+    public TrackViewModel getCurrentTrackViewModel()
+    {
+        return currentTrackViewModel;
+    }
+
+    public void setCurrentTrackViewModel(TrackViewModel currentTrackViewModel)
+    {
+        this.currentTrackViewModel = currentTrackViewModel;
     }
 }
