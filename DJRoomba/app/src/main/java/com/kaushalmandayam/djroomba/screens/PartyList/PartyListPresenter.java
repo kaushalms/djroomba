@@ -45,6 +45,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
     private DatabaseReference userDatabaseReference;
     private Party party;
     private String partyId;
+    private boolean joinParty;
     private User user = new User();
 
     //==============================================================================================
@@ -112,7 +113,6 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
         UserManager.INSTANCE.setFirebaseUserNodeId(firebaseUserId);
 
         user.setUserId(UserManager.INSTANCE.getUserId());
-
     }
 
     private void updatePartyNode(String partyName, String partyDesctiption, boolean isPasswordProtected)
@@ -129,7 +129,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
         party.setPasswordProtected(isPasswordProtected);
         party.setPartyId(partyId);
 
-        if (UserManager.INSTANCE.getUserImageUrl()!= null && UserManager.INSTANCE.getUserId() != null)
+        if (UserManager.INSTANCE.getUserImageUrl() != null && UserManager.INSTANCE.getUserId() != null)
         {
             party.setPartyHostId(UserManager.INSTANCE.getUserId());
             party.setImageUrl(UserManager.INSTANCE.getUserImageUrl());
@@ -170,11 +170,23 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
                 {
                     UserManager.INSTANCE.setUserImageUrl(userImages.get(0).url);
                 }
-                party.setPartyHostId(UserManager.INSTANCE.getUserId());
-                party.setImageUrl(UserManager.INSTANCE.getUserImageUrl());
-                user.setUserId(UserManager.INSTANCE.getUserId());
-                submitPartyInformation(partyId, party);
-                submitUserInformation(user);
+
+                if (joinParty)
+                {
+                    party.partyGuestIds.add(UserManager.INSTANCE.getUserId());
+                    PartyManager.INSTANCE.updateParty(party);
+                    joinParty = false;
+                    view.startPartyDetailActivity(party);
+                }
+                else
+                {
+                    party.setPartyHostId(UserManager.INSTANCE.getUserId());
+                    party.setImageUrl(UserManager.INSTANCE.getUserImageUrl());
+                    user.setUserId(UserManager.INSTANCE.getUserId());
+                    submitPartyInformation(partyId, party);
+                    submitUserInformation(user);
+                }
+
 
                 Log.d("Login Presenter", "onLoggedIn: userid" + id);
             }
@@ -219,6 +231,21 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
         UserManager.INSTANCE.saveUserMataData(dataSnapshot);
     }
 
+    public void onJoinButtonClicked(Party party)
+    {
+        this.party = party;
+        if (UserManager.INSTANCE.getUserId() != null)
+        {
+            party.partyGuestIds.add(UserManager.INSTANCE.getUserId());
+            PartyManager.INSTANCE.updateParty(party);
+        }
+        else
+        {
+            joinParty = true;
+            fetchAccessToken();
+        }
+    }
+
     //==============================================================================================
     // View Interface
     //==============================================================================================
@@ -230,5 +257,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
         void showPartyList(List<Party> parties);
 
         void setupPartyAdapter();
+
+        void startPartyDetailActivity(Party party);
     }
 }

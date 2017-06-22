@@ -18,6 +18,7 @@ public class Party
     public String partyId;
     public String imageUrl;
     public List<String> partyPlayListSongs = new ArrayList<>();
+    public List<String> partyGuestIds = new ArrayList<>();
 
     public void setPartyPlayListSongs(List<String> partyPlayListSongs)
     {

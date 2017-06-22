@@ -71,7 +71,6 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
             PartyListActivity.start(this);
             finish();
         }
-
     }
 
     @Override
@@ -150,6 +149,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     @Override
     public void ShowLoginActivity(AuthenticationRequest request)
     {
+        dismissProgressDialog();
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
 
@@ -167,6 +167,7 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     @OnClick(R.id.spotifyLoginButton)
     public void loginButtonPressed()
     {
+        showProgressDialog("loading");
         presenter.onAuthenticateSpotifyLoginClicked();
     }
 

@@ -78,7 +78,7 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
                 @Override
                 public void onClick(View view)
                 {
-                    listener.onPartyClicked(party);
+                    listener.onJoinButtonClicked(party);
                 }
             });
         }
@@ -127,6 +127,6 @@ public class PartyListAdapter extends RecyclerView.Adapter<PartyListAdapter.Part
 
     public interface PartyListAdapterListener
     {
-        void onPartyClicked(Party party);
+        void onJoinButtonClicked(Party party);
     }
 }

@@ -1,6 +1,7 @@
 package com.kaushalmandayam.djroomba.screens.PartyDetail;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -93,9 +94,14 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         final TrackViewModel trackViewModel = trackViewModels.get(position);
         if (currentTrackViewModel != null)
         {
-            if (trackViewModel.getTrack().id.equals(currentTrackViewModel.getTrack().id))
+            if (trackViewModel.getTrack().id.equals(AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().getTrack().id))
             {
                 trackViewModel.setPlaying(true);
+                lastClickedPosition = holder.getAdapterPosition();
+            }
+            else
+            {
+                trackViewModel.setPlaying(false);
             }
         }
 
@@ -214,8 +220,13 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         {
             if (!(lastClickedPosition == trackViewModels.indexOf(trackViewModel)))
             {
+                AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModel);
                 trackViewModels.get(lastClickedPosition).setPlaying(false);
                 notifyItemChanged(lastClickedPosition);
+            }
+            else
+            {
+                trackViewModel.setPlaying(true);
             }
             playImageView.setVisibility(View.GONE);
             pauseImageView.setVisibility(View.VISIBLE);
@@ -228,6 +239,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         @OnClick(R.id.pauseImageView)
         void onPauseClicked()
         {
+            AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().setPlaying(false);
             trackViewModels.get(lastClickedPosition).setPlaying(false);
             playImageView.setVisibility(View.VISIBLE);
             pauseImageView.setVisibility(View.GONE);

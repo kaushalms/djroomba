@@ -128,9 +128,22 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
     void onSubmitButtonClicked()
     {
         LoginManager.INSTANCE.subscribeAccessTokenListener(this);
-        presenter.onSubmitButtonClicked(partyNameEditText.getText().toString(),
-                partyDescriptionEditText.getText().toString(),
-                passwordCheckBox.isSelected());
+        if (!partyNameEditText.getText().toString().isEmpty())
+        {
+            presenter.onSubmitButtonClicked(partyNameEditText.getText().toString(),
+                    partyDescriptionEditText.getText().toString(),
+                    passwordCheckBox.isSelected());
+
+            if (fab.getVisibility() != View.VISIBLE)
+            {
+                FabTransformation.with(fab).setOverlay(overlay).transformFrom(sheet);
+            }
+        }
+        else
+        {
+            showToast(getString(R.string.party_name_empty));
+        }
+
     }
 
     //==============================================================================================
@@ -144,13 +157,20 @@ public class PartyListActivity extends BaseActivity<PartyListPresenter> implemen
         partyListAdapter = new PartyListAdapter(new PartyListAdapter.PartyListAdapterListener()
         {
             @Override
-            public void onPartyClicked(Party party)
+            public void onJoinButtonClicked(Party party)
             {
-                PartyDetailActivity.start(PartyListActivity.this, party);
+                presenter.onJoinButtonClicked(party);
+                LoginManager.INSTANCE.subscribeAccessTokenListener(PartyListActivity.this);
             }
         });
         partyListRecyclerView.setAdapter(partyListAdapter);
         presenter.onAdapterViewSet();
+    }
+
+    @Override
+    public void startPartyDetailActivity(Party party)
+    {
+        PartyDetailActivity.start(PartyListActivity.this, party);
     }
 
     @Override
