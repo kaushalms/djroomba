@@ -1,6 +1,7 @@
 package com.kaushalmandayam.djroomba.managers;
 
 import com.kaushalmandayam.djroomba.models.TrackViewModel;
+import com.spotify.sdk.android.player.Error;
 import com.spotify.sdk.android.player.Player;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import kaaes.spotify.webapi.android.models.Track;
 
 /**
  * Singleton to manage Spotify Audio Player
- *
+ * <p>
  * Created by kaushalmandayam on 4/29/17.
  */
 
@@ -25,6 +26,7 @@ public enum AudioPlayerManager
     private List<Track> tracks;
     private TrackViewModel currentTrackViewModel;
     private List<TrackViewModel> trackViewModels;
+    private int progress;
 
     //==============================================================================================
     // Class Instance Methods
@@ -62,6 +64,7 @@ public enum AudioPlayerManager
 
     public void clearTracks()
     {
+        trackViewModels = null;
         tracks = null;
     }
 
@@ -73,5 +76,33 @@ public enum AudioPlayerManager
     public void setCurrentTrackViewModel(TrackViewModel currentTrackViewModel)
     {
         this.currentTrackViewModel = currentTrackViewModel;
+    }
+
+    public void playTrack(int lastClickedPosition)
+    {
+        player.playUri(new Player.OperationCallback()
+        {
+            @Override
+            public void onSuccess()
+            {
+                // nothing
+            }
+
+            @Override
+            public void onError(Error error)
+            {
+                // nothing
+            }
+        }, tracks.get(lastClickedPosition).uri, 0, 0);
+    }
+
+    public int getProgess()
+    {
+        return progress;
+    }
+
+    public void setProgress(int pregress)
+    {
+        this.progress = pregress;
     }
 }

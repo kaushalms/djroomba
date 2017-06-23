@@ -173,7 +173,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
 
                 if (joinParty)
                 {
-                    if(!party.partyGuestIds.contains(UserManager.INSTANCE.getUserId()))
+                    if (!party.partyGuestIds.contains(UserManager.INSTANCE.getUserId()))
                     {
                         party.partyGuestIds.add(UserManager.INSTANCE.getUserId());
                         PartyManager.INSTANCE.updateParty(party);
@@ -239,7 +239,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
         this.party = party;
         if (UserManager.INSTANCE.getUserId() != null)
         {
-            if(!party.partyGuestIds.contains(UserManager.INSTANCE.getUserId()))
+            if (!party.partyGuestIds.contains(UserManager.INSTANCE.getUserId()))
             {
                 party.partyGuestIds.add(UserManager.INSTANCE.getUserId());
                 PartyManager.INSTANCE.updateParty(party);
