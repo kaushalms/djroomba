@@ -107,7 +107,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
 
         Bundle bundle = getIntent().getExtras();
         Gson gson = new Gson();
-
+        showProgressDialog(getString(R.string.loading_playlist));
         party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
 
         Track addedTrack = gson.fromJson(bundle.getString(TRACK_ADDED_KEY), Track.class);
@@ -182,6 +182,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
 
     private void setupTrackAdapter()
     {
+        dismissProgressDialog();
         playlistRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         playListAdapter = new PlayListAdapter(PartyDetailActivity.this, new PlayListAdapter.PlaylistAdapterListener()
         {
@@ -390,6 +391,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     @Override
     public void showTracks(final List<Track> tracks)
     {
+        dismissProgressDialog();
         runOnUiThread(new Runnable()
         {
             @Override
