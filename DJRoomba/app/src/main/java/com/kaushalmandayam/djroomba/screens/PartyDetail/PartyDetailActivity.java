@@ -62,8 +62,12 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     private static final String PARTY_KEY = "PARTY_KEY";
     private static final String TRACK_ADDED_KEY = "TRACK_ADDED_KEY";
     private Party party;
+    public TrackViewModel trackViewModel;
     private PlayListAdapter playListAdapter;
     private int lastClickedPosition;
+    private CountDownTimer countDownTimer;
+    private int startTime;
+    public static final int MILLISECONDS_PER_SECOND = 1000;
 
     //==============================================================================================
     // static Methods
@@ -101,15 +105,11 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_party_detail);
         attachPresenter(new PartyDetailPresenter(), this);
-
+        AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(null);
         Bundle bundle = getIntent().getExtras();
         Gson gson = new Gson();
 
         party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
-        if (party != null)
-        {
-            PartyManager.INSTANCE.setParty(party);
-        }
 
         Track addedTrack = gson.fromJson(bundle.getString(TRACK_ADDED_KEY), Track.class);
         if (addedTrack != null)
@@ -125,37 +125,64 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
 
         if (addedTrack != null)
         {
+            // Returning from search screen
             playListAdapter.setTrackViewModels(AudioPlayerManager.INSTANCE.getTrackViewModels());
         }
         else
         {
+            // Get a fresh access token and update the view
             LoginManager.INSTANCE.subscribeAccessTokenListener(this);
             LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
         }
+
+        // Reset current song if you join a new party
+        if (PartyManager.INSTANCE.getParty() != null
+            && !party.getPartyId().equals(PartyManager.INSTANCE.getParty().getPartyId()))
+        {
+            AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(null);
+        }
+
+        // Save party to manager
+        if (party != null)
+        {
+            PartyManager.INSTANCE.setParty(party);
+        }
     }
 
-    private void setupProgressBar()
+    private void setupProgressBar(final int timerStartTime)
     {
-        int maxSongLength = (int) (AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().getTrack().duration_ms/1000);
-        songProgressBar.setMax(maxSongLength);
-        songProgressBar.setProgress(0);
-        CountDownTimer countDownTimer = new CountDownTimer(maxSongLength * 1000, 1000)
+        final int maxSongLength = (int) (AudioPlayerManager.INSTANCE.getCurrentTrackViewModel()
+                .getTrack().duration_ms / 1000);
+        int counterMaxTime = (maxSongLength - timerStartTime);
+        if (timerStartTime != 0)
         {
-            int i = 0;
+            songProgressBar.setMax(counterMaxTime);
+            songProgressBar.setProgress(timerStartTime);
+        }
+        else
+        {
+            songProgressBar.setMax(maxSongLength);
+            songProgressBar.setProgress(0);
+        }
+
+        countDownTimer = new CountDownTimer(counterMaxTime * MILLISECONDS_PER_SECOND, 1000)
+        {
+            int i = timerStartTime;
 
             @Override
             public void onTick(long millisUntilFinished)
             {
                 Log.v("Log_tag", "Tick of Progress" + i + millisUntilFinished);
                 i++;
+                startTime = i;
                 songProgressBar.setProgress(i);
-
             }
 
             @Override
             public void onFinish()
             {
-                songProgressBar.setProgress(i);
+                songProgressBar.setProgress(maxSongLength);
+                onNextButtonClicked();
             }
         };
         countDownTimer.start();
@@ -176,7 +203,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             @Override
             public void onPlayClicked(TrackViewModel trackViewModel, int lastClickedPosition)
             {
-                setupProgressBar();
+                saveTrackViewModel(trackViewModel);
                 if (trackViewModel.isPlaying())
                 {
                     presenter.onPlayerResumed();
@@ -185,6 +212,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
                 {
                     presenter.onPlayClicked(trackViewModel.getTrack());
                 }
+                resetTimer();
+                setupProgressBar(startTime);
                 saveLastPlayedPosition(lastClickedPosition);
                 playMediaImageView.setVisibility(View.GONE);
                 pauseMediaImageView.setVisibility(View.VISIBLE);
@@ -193,6 +222,10 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             @Override
             public void onPauseClicked()
             {
+                if (countDownTimer != null)
+                {
+                    countDownTimer.cancel();
+                }
                 presenter.onPauseClicked();
                 playMediaImageView.setVisibility(View.VISIBLE);
                 pauseMediaImageView.setVisibility(View.GONE);
@@ -210,8 +243,19 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             {
                 saveLastPlayedPosition(lastClickedPosition);
             }
+
+            @Override
+            public void resetCounter()
+            {
+                startTime = 0;
+            }
         });
         playlistRecyclerView.setAdapter(playListAdapter);
+    }
+
+    private void saveTrackViewModel(TrackViewModel trackViewModel)
+    {
+        this.trackViewModel = trackViewModel;
     }
 
     @Override
@@ -246,15 +290,41 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     @OnClick(R.id.playMediaImageView)
     void onMediaPlayClicked()
     {
+        if (trackViewModel != null)
+        {
+            presenter.onPlayerResumed();
+            playListAdapter.playTrack(lastClickedPosition);
+        }
+        else
+        {
+            playListAdapter.playTrack(0);
+            presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().getTrack());
+        }
+
+        resetTimer();
+        setupProgressBar(startTime);
         playMediaImageView.setVisibility(View.GONE);
         pauseMediaImageView.setVisibility(View.VISIBLE);
-        playListAdapter.playTrack(lastClickedPosition);
-        presenter.onPlayerResumed();
+
+    }
+
+    private void resetTimer()
+    {
+        if (countDownTimer != null)
+        {
+            countDownTimer.cancel();
+            countDownTimer = null;
+        }
     }
 
     @OnClick(R.id.pauseMediaImageView)
     void onMediaPauseClicked()
     {
+        if (countDownTimer != null)
+        {
+            countDownTimer.cancel();
+        }
+
         playMediaImageView.setVisibility(View.VISIBLE);
         pauseMediaImageView.setVisibility(View.GONE);
         playListAdapter.pauseTrack(lastClickedPosition);
@@ -272,6 +342,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             playListAdapter.playPreviousTrack(lastClickedPosition);
             lastClickedPosition--;
             presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTracks().get(lastClickedPosition));
+            resetTimer();
+            setupProgressBar(startTime);
         }
 
     }
@@ -287,10 +359,10 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             playListAdapter.playNextTrack(lastClickedPosition);
             lastClickedPosition++;
             presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTracks().get(lastClickedPosition));
+            resetTimer();
+            setupProgressBar(startTime);
         }
-
     }
-
 
     //==============================================================================================
     // view Interface methods

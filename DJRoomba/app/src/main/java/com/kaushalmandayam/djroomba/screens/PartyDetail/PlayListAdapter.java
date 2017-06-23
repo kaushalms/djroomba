@@ -1,7 +1,6 @@
 package com.kaushalmandayam.djroomba.screens.PartyDetail;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -121,6 +120,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     public void pauseTrack(int lastClickedPosition)
     {
         trackViewModels.get(lastClickedPosition).setPlaying(false);
+        AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().setPlaying(false);
         AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
         notifyItemChanged(lastClickedPosition);
     }
@@ -129,8 +129,11 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     {
         trackViewModels.get(lastClickedPosition).setPlaying(true);
         AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
+        AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModels.get(lastClickedPosition));
         notifyItemChanged(lastClickedPosition);
+        listener.onPlayClicked(trackViewModels.get(lastClickedPosition), lastClickedPosition);
     }
+
 
     public void playPreviousTrack(int lastClickedPosition)
     {
@@ -220,16 +223,19 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         @OnClick(R.id.playImageView)
         void onPlayButtonClicked()
         {
-            if (!(lastClickedPosition == trackViewModels.indexOf(trackViewModel)))
+            if (!(lastClickedPosition == trackViewModels.indexOf(trackViewModel))
+                    || trackViewModels.indexOf(trackViewModel) == 0)
             {
                 AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModel);
                 trackViewModels.get(lastClickedPosition).setPlaying(false);
+                listener.resetCounter();
                 notifyItemChanged(lastClickedPosition);
             }
             else
             {
                 trackViewModel.setPlaying(true);
             }
+
             playImageView.setVisibility(View.GONE);
             pauseImageView.setVisibility(View.VISIBLE);
             trackTextView.setTextColor(ContextCompat.getColor(context, R.color.primary));
@@ -262,5 +268,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         void showPauseButton();
 
         void savelastClickedPosition(int lastClickedPosition);
+
+        void resetCounter();
     }
 }
