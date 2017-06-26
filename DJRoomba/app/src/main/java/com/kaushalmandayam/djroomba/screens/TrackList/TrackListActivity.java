@@ -18,6 +18,7 @@ import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
 import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.models.PartyTrack;
 import com.kaushalmandayam.djroomba.screens.PartyDetail.PartyDetailActivity;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
@@ -138,7 +139,7 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
             @Override
             public void onAddSongClicked(Party party, Track track)
             {
-                presenter.updatePlaylist(party, track);
+                presenter.updatePlaylist(track);
             }
         });
         tracksRecyclerView.setAdapter(tracksAdapter);
@@ -200,9 +201,9 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
     }
 
     @Override
-    public void startPartyDetailActivity(Track track)
+    public void startPartyDetailActivity()
     {
-        PartyDetailActivity.start(TrackListActivity.this, PartyManager.INSTANCE.getParty(), track);
+        PartyDetailActivity.start(TrackListActivity.this, PartyManager.INSTANCE.getParty());
         finish();
     }
 }

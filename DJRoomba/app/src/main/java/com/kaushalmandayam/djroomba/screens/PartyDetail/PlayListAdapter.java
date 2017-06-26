@@ -54,17 +54,12 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         currentTrackViewModel = AudioPlayerManager.INSTANCE.getCurrentTrackViewModel();
     }
 
-    public void setData(List<Track> tracks)
+    public void setData(List<TrackViewModel> trackViewModels)
     {
-        this.tracks = new ArrayList<>();
-        this.tracks.addAll(tracks);
-        for (Track track : tracks)
-        {
-            TrackViewModel trackViewModel = new TrackViewModel();
-            trackViewModel.setTrack(track);
-            trackViewModels.add(trackViewModel);
-        }
         AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
+        this.tracks.clear();
+        this.trackViewModels.clear();
+        this.trackViewModels.addAll(trackViewModels);
         this.notifyDataSetChanged();
     }
 
@@ -253,6 +248,18 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
             pauseImageView.setVisibility(View.GONE);
             listener.onPauseClicked();
         }
+
+        @OnClick(R.id.thumbsUpImageView)
+        void onThumbsUpClicked()
+        {
+           listener.upVoteTrack(trackViewModels.get(getAdapterPosition()));
+        }
+
+        @OnClick(R.id.thumbsDownImageView)
+        void onThumbsDownVoteClicked()
+        {
+            listener.downVoteTrack(trackViewModels.get(getAdapterPosition()));
+        }
     }
 
     //==============================================================================================
@@ -270,5 +277,9 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         void savelastClickedPosition(int lastClickedPosition);
 
         void resetCounter();
+
+        void upVoteTrack(TrackViewModel trackViewModel);
+
+        void downVoteTrack(TrackViewModel trackViewModel);
     }
 }

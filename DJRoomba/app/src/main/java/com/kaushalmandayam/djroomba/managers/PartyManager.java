@@ -4,6 +4,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.models.PartyTrack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +22,11 @@ public enum PartyManager
     INSTANCE;
 
     private Party party;
-    private DatabaseReference partyNodeReference;
     private Map<String, Party> partyMap = new HashMap<>();
+
+
+
+    private Map<String, PartyTrack> trackMap = new HashMap<>();
 
     //==============================================================================================
     // Class Instance Methods
@@ -44,13 +48,34 @@ public enum PartyManager
         this.party = party;
     }
 
-    public void savePartyMataData(DataSnapshot dataSnapshot)
+    public void savePartyMetaData(DataSnapshot dataSnapshot)
     {
         // Get Post object and use the values to update the UI
         for (DataSnapshot partyDataSnapShot : dataSnapshot.getChildren())
         {
             addToPartyList(partyDataSnapShot);
         }
+    }
+
+    public void saveTracksMetaData(DataSnapshot dataSnapshot)
+    {
+        // Get Post object and use the values to update the UI
+        for (DataSnapshot partyDataSnapShot : dataSnapshot.getChildren())
+        {
+            addToTracksList(partyDataSnapShot);
+        }
+    }
+
+    public Map<String, PartyTrack> getTrackMap()
+    {
+        return trackMap;
+    }
+
+    private void addToTracksList(DataSnapshot partyDataSnapShot)
+    {
+        String key = partyDataSnapShot.getKey();
+        PartyTrack track = partyDataSnapShot.getValue(PartyTrack.class);
+        trackMap.put(key, track);
     }
 
     private void addToPartyList(DataSnapshot partyDataSnapShot)
@@ -63,15 +88,37 @@ public enum PartyManager
     public void updateParty(Party party)
     {
         this.party = party;
-        partyNodeReference = FirebaseDatabase.getInstance()
-                                                .getReference()
-                                                .child("parties/" + party.getPartyId());
+        DatabaseReference partyNodeReference = FirebaseDatabase.getInstance()
+                .getReference()
+                .child("parties/" + party.getPartyId());
         partyNodeReference.setValue(party);
     }
 
+    public void updatePartyTrack(PartyTrack track)
+    {
+        DatabaseReference partyNodeReference = FirebaseDatabase.getInstance()
+                .getReference()
+                .child("parties/" + party.getPartyId()+"/tracks");
+
+        Map<String, Object> TrackValues = track.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put(track.trackId, TrackValues);
+        partyNodeReference.updateChildren(childUpdates);
+    }
+
+
     public void updateParty(DataSnapshot dataSnapshot)
     {
-        Party party = dataSnapshot.getValue(Party.class);
-        this.party = party;
+        this.party = dataSnapshot.getValue(Party.class);
     }
+
+    public void updateVotes(PartyTrack partyTrack)
+    {
+        DatabaseReference trackNodeReference = FirebaseDatabase.getInstance()
+                .getReference()
+                .child("parties/" + party.getPartyId() + "/tracks/"+ partyTrack.trackId);
+        trackNodeReference.setValue(partyTrack);
+    }
+
+
 }

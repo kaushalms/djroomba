@@ -105,4 +105,5 @@ public enum AudioPlayerManager
     {
         this.progress = pregress;
     }
+
 }

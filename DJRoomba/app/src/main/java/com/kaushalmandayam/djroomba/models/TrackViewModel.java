@@ -14,6 +14,7 @@ public class TrackViewModel
 {
     private Track track;
     private boolean isPlaying;
+    private int votes;
 
     public Track getTrack()
     {
@@ -35,4 +36,13 @@ public class TrackViewModel
         isPlaying = playing;
     }
 
+    public int getVotes()
+    {
+        return votes;
+    }
+
+    public void setVotes(int votes)
+    {
+        this.votes = votes;
+    }
 }

@@ -8,18 +8,25 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
+import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.managers.UserManager;
 import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.models.PartyTrack;
+import com.kaushalmandayam.djroomba.models.TrackViewModel;
 import com.kaushalmandayam.djroomba.screens.base.BasePresenter;
 import com.kaushalmandayam.djroomba.screens.base.BaseView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
+
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TracksPager;
 import retrofit.RetrofitError;
@@ -34,6 +41,8 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
     // Activity/public Methods
     //==============================================================================================
 
+    private SpotifyService spotifyService;
+    List<PartyTrack> partyTracks = new ArrayList<>();
     List<Track> tracks = new ArrayList<>();
     private DatabaseReference tracksNodeReference;
 
@@ -75,29 +84,31 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
         tracks.clear();
         for (Track track : tracksPager.tracks.items)
         {
+
             tracks.add(track);
         }
 
         view.populateTrack(tracks);
     }
 
-    public void updatePlaylist(Party party, final Track track)
+    public void updatePlaylist(final Track track)
     {
-        party.addTracktoPlaylist(track.id);
-        PartyManager.INSTANCE.updateParty(party);
-        tracksNodeReference = FirebaseDatabase.getInstance().getReference()
-                .child("parties/" + PartyManager.INSTANCE.getParty().getPartyId());
+        PartyTrack partyTrack = new PartyTrack();
+        partyTrack.trackId = track.id;
+        PartyManager.INSTANCE.updatePartyTrack(partyTrack);
+
+        DatabaseReference tracksNodeReference = FirebaseDatabase.getInstance()
+                .getReference()
+                .child("parties/" + PartyManager.INSTANCE.getParty().getPartyId() +"/tracks");
 
         tracksNodeReference.addValueEventListener(new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                PartyManager.INSTANCE.updateParty(dataSnapshot);
-                if (view != null)
-                {
-                    view.startPartyDetailActivity(track);
-                }
+                saveTracks(dataSnapshot);
+                getTracks();
+
             }
 
             @Override
@@ -106,6 +117,57 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
                 // do nothing
             }
         });
+
+    }
+
+
+    private void saveTracks(DataSnapshot tracksDataSnapshot)
+    {
+        PartyManager.INSTANCE.saveTracksMetaData(tracksDataSnapshot);
+    }
+
+    public void getTracks()
+    {
+        final List<PartyTrack> partyTracks;
+        final List<TrackViewModel> trackViewModels = new ArrayList<>();
+        spotifyService = LoginManager.INSTANCE.getService();
+
+        if (PartyManager.INSTANCE.getTrackMap() != null)
+        {
+            partyTracks = new ArrayList<>(PartyManager.INSTANCE.getTrackMap().values());
+            try
+            {
+                AsyncTask.execute(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        for (PartyTrack partyTrack : partyTracks)
+                        {
+                            Track track = spotifyService.getTrack(partyTrack.trackId);
+                            TrackViewModel trackViewModel = new TrackViewModel();
+                            trackViewModel.setPlaying(false);
+                            trackViewModel.setTrack(track);
+                            trackViewModel.setVotes(partyTrack.votes);
+
+                            trackViewModels.add(trackViewModel);
+                        }
+                        AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
+
+                        if (view != null)
+                        {
+                            view.startPartyDetailActivity();
+                        }
+
+                    }
+                });
+            }
+            catch (RetrofitError error)
+            {
+                Log.d("Spotify retrofit error", "getTracks: " + error.getMessage());
+            }
+
+        }
     }
 
     //==============================================================================================
@@ -116,6 +178,6 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
     {
         void populateTrack(List<Track> tracks);
 
-        void startPartyDetailActivity(Track track);
+        void startPartyDetailActivity();
     }
 }

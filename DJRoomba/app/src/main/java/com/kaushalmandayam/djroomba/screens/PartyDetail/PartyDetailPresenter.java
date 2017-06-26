@@ -4,10 +4,18 @@ package com.kaushalmandayam.djroomba.screens.PartyDetail;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.kaushalmandayam.djroomba.DjRoombaApplication;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
+import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.models.PartyTrack;
+import com.kaushalmandayam.djroomba.models.TrackViewModel;
 import com.kaushalmandayam.djroomba.screens.base.BasePresenter;
 import com.kaushalmandayam.djroomba.screens.base.BaseView;
 import com.spotify.sdk.android.player.Config;
@@ -35,46 +43,87 @@ import static com.kaushalmandayam.djroomba.Constants.CLIENT_ID;
 
 public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.PartyDetailView>
 {
+
     //==============================================================================================
     // Class properties
     //==============================================================================================
 
     private SpotifyService spotifyService;
+    private static final String TAG = "PartyDetailPresenter";
 
     //==============================================================================================
     // Class Instance Methods
     //==============================================================================================
 
-    public void getTracks(Party party)
+
+    public void getPartyTracks(final Party party)
     {
-        final List<String> playListSongs = party.getPartyPlayListSongs();
-        final List<Track> tracks = new ArrayList<>();
+        DatabaseReference tracksNodeReference = FirebaseDatabase.getInstance()
+                .getReference()
+                .child("parties/" + party.getPartyId()+"/tracks");
+
+        tracksNodeReference.addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                saveTracks(dataSnapshot);
+                getTracks();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+            }
+        });
+    }
+
+    private void saveTracks(DataSnapshot tracksDataSnapshot)
+    {
+        PartyManager.INSTANCE.saveTracksMetaData(tracksDataSnapshot);
+    }
+
+    public void getTracks()
+    {
+        final List<PartyTrack> partyTracks;
+        final List<TrackViewModel> trackViewModels = new ArrayList<>();
         spotifyService = LoginManager.INSTANCE.getService();
 
-        try
+        if (PartyManager.INSTANCE.getTrackMap() != null)
         {
-            AsyncTask.execute(new Runnable()
+            partyTracks = new ArrayList<>(PartyManager.INSTANCE.getTrackMap().values());
+            try
             {
-                @Override
-                public void run()
+                AsyncTask.execute(new Runnable()
                 {
-                    for (String songId : playListSongs)
+                    @Override
+                    public void run()
                     {
-                        tracks.add(spotifyService.getTrack(songId));
-                    }
-                    AudioPlayerManager.INSTANCE.setTracks(tracks);
+                        for (PartyTrack partyTrack : partyTracks)
+                        {
+                            Track track = spotifyService.getTrack(partyTrack.trackId);
+                            TrackViewModel trackViewModel = new TrackViewModel();
+                            trackViewModel.setPlaying(false);
+                            trackViewModel.setTrack(track);
+                            trackViewModel.setVotes(partyTrack.votes);
 
-                    if (view != null)
-                    {
-                        view.showTracks(tracks);
-                    }
+                            trackViewModels.add(trackViewModel);
+                        }
+                        AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
 
-                }
-            });
-        }
-        catch (RetrofitError error)
-        {
-            Log.d("Spotify retrofit error", "getTracks: " + error.getMessage());
+                        if (view != null)
+                        {
+                            view.showTracks(trackViewModels);
+                        }
+                    }
+                });
+            }
+            catch (RetrofitError error)
+            {
+                Log.d("Spotify retrofit error", "getTracks: " + error.getMessage());
+            }
+
         }
     }
 
@@ -131,13 +180,12 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
     }
 
 
-
     //==============================================================================================
     // View Interface
     //==============================================================================================
 
     public interface PartyDetailView extends BaseView
     {
-        void showTracks(List<Track> tracks);
+        void showTracks(List<TrackViewModel> tracks);
     }
 }

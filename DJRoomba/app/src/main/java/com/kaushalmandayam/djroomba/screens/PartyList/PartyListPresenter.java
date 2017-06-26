@@ -226,7 +226,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
 
     public void savePartyMatadata(DataSnapshot dataSnapshot)
     {
-        PartyManager.INSTANCE.savePartyMataData(dataSnapshot);
+        PartyManager.INSTANCE.savePartyMetaData(dataSnapshot);
     }
 
     public void saveUserData(DataSnapshot dataSnapshot)
@@ -236,6 +236,7 @@ public class PartyListPresenter extends BasePresenter<PartyListPresenter.PartyLi
 
     public void onJoinButtonClicked(Party party)
     {
+        PartyManager.INSTANCE.setParty(party);
         this.party = party;
         if (UserManager.INSTANCE.getUserId() != null)
         {

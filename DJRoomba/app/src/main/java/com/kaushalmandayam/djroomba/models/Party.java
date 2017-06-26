@@ -17,13 +17,7 @@ public class Party
     public String partyHostId;
     public String partyId;
     public String imageUrl;
-    public List<String> partyPlayListSongs = new ArrayList<>();
     public List<String> partyGuestIds = new ArrayList<>();
-
-    public void setPartyPlayListSongs(List<String> partyPlayListSongs)
-    {
-        this.partyPlayListSongs = partyPlayListSongs;
-    }
 
 
     public String getPartyName()
@@ -56,12 +50,6 @@ public class Party
         isPasswordProtected = passwordProtected;
     }
 
-    public List<String> getPartyPlayListSongs()
-    {
-        return partyPlayListSongs;
-    }
-
-
     public String getPartyId()
     {
         return partyId;
@@ -91,19 +79,11 @@ public class Party
         partyValue.put("isPassword_Protected", isPasswordProtected);
         partyValue.put("partyHostId", partyHostId);
         partyValue.put("partyId", partyId);
-        partyValue.put("partyplaylist", partyPlayListSongs);
         partyValue.put("imageUrl", imageUrl);
 
         return partyValue;
     }
 
-    public void addTracktoPlaylist(String trackId)
-    {
-        if (!partyPlayListSongs.contains(trackId))
-        {
-            partyPlayListSongs.add(trackId);
-        }
-    }
 
     public void setImageUrl(String imageUrl)
     {

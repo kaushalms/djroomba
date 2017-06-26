@@ -18,6 +18,7 @@ import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.models.Party;
+import com.kaushalmandayam.djroomba.models.PartyTrack;
 import com.kaushalmandayam.djroomba.models.TrackViewModel;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListActivity;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
@@ -67,6 +68,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     private int lastClickedPosition;
     private CountDownTimer countDownTimer;
     private int startTime;
+    private PartyTrack track;
     public static final int MILLISECONDS_PER_SECOND = 1000;
 
     //==============================================================================================
@@ -80,17 +82,6 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         starter.putExtra(PARTY_KEY, gson.toJson(party));
-        context.startActivity(starter);
-    }
-
-    public static void start(Context context, Party party, Track track)
-    {
-        Gson gson = new Gson();
-        Intent starter = new Intent(context, PartyDetailActivity.class);
-        starter.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        starter.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        starter.putExtra(PARTY_KEY, gson.toJson(party));
-        starter.putExtra(TRACK_ADDED_KEY, gson.toJson(track));
         context.startActivity(starter);
     }
 
@@ -109,28 +100,12 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         Gson gson = new Gson();
         showProgressDialog(getString(R.string.loading_playlist));
         party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
+        setupTrackAdapter();
 
-        Track addedTrack = gson.fromJson(bundle.getString(TRACK_ADDED_KEY), Track.class);
-        if (addedTrack != null)
-        {
-            TrackViewModel addedTrackViewModel = new TrackViewModel();
-            addedTrackViewModel.setTrack(addedTrack);
-            addedTrackViewModel.setPlaying(false);
-            AudioPlayerManager.INSTANCE.getTracks().add(addedTrack);
-            AudioPlayerManager.INSTANCE.getTrackViewModels().add(addedTrackViewModel);
-        }
-
-        if (addedTrack != null)
-        {
-            // Returning from search screen
-            playListAdapter.setTrackViewModels(AudioPlayerManager.INSTANCE.getTrackViewModels());
-        }
-        else
-        {
-            // Get a fresh access token and update the view
-            LoginManager.INSTANCE.subscribeAccessTokenListener(this);
-            LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
-        }
+        // Get a fresh access token and update the view;
+        // Set Adapter after fetching access token
+        LoginManager.INSTANCE.subscribeAccessTokenListener(this);
+        LoginManager.INSTANCE.fetchAccessToken(PreferenceUtils.getRefreshToken());
 
         // Reset current song if you join a new party
         if (PartyManager.INSTANCE.getParty() != null
@@ -151,8 +126,6 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         {
             setupProgressBar(AudioPlayerManager.INSTANCE.getProgess());
         }
-
-        setupTrackAdapter();
     }
 
 
@@ -235,6 +208,27 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             {
                 startTime = 0;
             }
+
+            @Override
+            public void upVoteTrack(TrackViewModel trackViewModel)
+            {
+                int votes = trackViewModel.getVotes();
+                votes++;
+                trackViewModel.setVotes(votes);
+                PartyManager.INSTANCE.updateVotes(track);
+            }
+
+            @Override
+            public void downVoteTrack(TrackViewModel trackViewModel)
+            {
+                int votes = trackViewModel.getVotes();
+                if (votes > 0)
+                {
+                    votes--;
+                }
+                trackViewModel.setVotes(votes);
+                PartyManager.INSTANCE.updateVotes(track);
+            }
         });
         playlistRecyclerView.setAdapter(playListAdapter);
     }
@@ -243,7 +237,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     private void setupProgressBar(final int timerStartTime)
     {
         final int maxSongLength = (int) (AudioPlayerManager.INSTANCE.getCurrentTrackViewModel()
-                .getTrack().duration_ms / 1000);
+                .getTrack().duration_ms / MILLISECONDS_PER_SECOND);
         int counterMaxTime = (maxSongLength - timerStartTime);
         if (timerStartTime != 0)
         {
@@ -256,7 +250,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             songProgressBar.setProgress(0);
         }
 
-        countDownTimer = new CountDownTimer(counterMaxTime * MILLISECONDS_PER_SECOND, 1000)
+        countDownTimer = new CountDownTimer(counterMaxTime * MILLISECONDS_PER_SECOND, MILLISECONDS_PER_SECOND)
         {
             int i = timerStartTime;
 
@@ -389,7 +383,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     //==============================================================================================
 
     @Override
-    public void showTracks(final List<Track> tracks)
+    public void showTracks(final List<TrackViewModel> trackViewModels)
     {
         dismissProgressDialog();
         runOnUiThread(new Runnable()
@@ -397,7 +391,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             @Override
             public void run()
             {
-                playListAdapter.setData(tracks);
+                playListAdapter.setData(trackViewModels);
             }
         });
     }
@@ -439,11 +433,11 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     public void setAccessToken(String userToken)
     {
         presenter.onAccessTokenReceived(userToken);
-        if (AudioPlayerManager.INSTANCE.getTracks() == null)
+        if (AudioPlayerManager.INSTANCE.getTrackViewModels() == null)
         {
-            presenter.getTracks(party);
+            presenter.getPartyTracks(party);
         }
-        else if (AudioPlayerManager.INSTANCE.getTrackViewModels() != null)
+        else
         {
             playListAdapter.setTrackViewModels(AudioPlayerManager.INSTANCE.getTrackViewModels());
         }
