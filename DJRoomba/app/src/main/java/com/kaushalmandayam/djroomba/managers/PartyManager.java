@@ -5,6 +5,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.kaushalmandayam.djroomba.models.Party;
 import com.kaushalmandayam.djroomba.models.PartyTrack;
+import com.kaushalmandayam.djroomba.models.TrackViewModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -106,19 +107,24 @@ public enum PartyManager
         partyNodeReference.updateChildren(childUpdates);
     }
 
-
     public void updateParty(DataSnapshot dataSnapshot)
     {
         this.party = dataSnapshot.getValue(Party.class);
     }
 
-    public void updateVotes(PartyTrack partyTrack)
+    public void updateVotes(TrackViewModel trackViewModel)
     {
         DatabaseReference trackNodeReference = FirebaseDatabase.getInstance()
                 .getReference()
-                .child("parties/" + party.getPartyId() + "/tracks/"+ partyTrack.trackId);
-        trackNodeReference.setValue(partyTrack);
+                .child("parties/" + party.getPartyId() + "/tracks");
+        PartyTrack partyTrack = new PartyTrack();
+        partyTrack.trackId = trackViewModel.getTrack().id;
+        partyTrack.votes = trackViewModel.getVotes();
+
+        Map<String, Object> trackValues = partyTrack.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put(trackViewModel.getTrack().id, trackValues);
+
+        trackNodeReference.setValue(childUpdates);
     }
-
-
 }

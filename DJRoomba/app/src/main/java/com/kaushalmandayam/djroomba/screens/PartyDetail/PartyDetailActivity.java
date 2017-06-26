@@ -215,7 +215,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
                 int votes = trackViewModel.getVotes();
                 votes++;
                 trackViewModel.setVotes(votes);
-                PartyManager.INSTANCE.updateVotes(track);
+                PartyManager.INSTANCE.updateVotes(trackViewModel);
             }
 
             @Override
@@ -227,7 +227,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
                     votes--;
                 }
                 trackViewModel.setVotes(votes);
-                PartyManager.INSTANCE.updateVotes(track);
+                PartyManager.INSTANCE.updateVotes(trackViewModel);
             }
         });
         playlistRecyclerView.setAdapter(playListAdapter);
