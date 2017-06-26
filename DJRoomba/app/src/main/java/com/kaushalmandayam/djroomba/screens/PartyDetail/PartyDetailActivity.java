@@ -356,7 +356,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     @OnClick(R.id.nextImageView)
     void onNextButtonClicked()
     {
-        if (lastClickedPosition < AudioPlayerManager.INSTANCE.getTracks().size() - 1)
+        if (lastClickedPosition < AudioPlayerManager.INSTANCE.getTrackViewModels().size() - 1)
         {
             playMediaImageView.setVisibility(View.VISIBLE);
             pauseMediaImageView.setVisibility(View.GONE);
