@@ -10,11 +10,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kaushalmandayam.djroomba.R;
+import com.kaushalmandayam.djroomba.Utils.MapUtils;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
+import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.models.TrackViewModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,6 +43,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     private PlayListAdapter.PlaylistAdapterListener listener;
     private List<Track> tracks = new ArrayList<>();
     private List<TrackViewModel> trackViewModels = new ArrayList<>();
+    private Map<TrackViewModel, Integer> tracksMap = new HashMap<>();
     private int lastClickedPosition;
     private Context context;
     private TrackViewModel currentTrackViewModel;
@@ -59,6 +64,11 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         this.tracks.clear();
         this.trackViewModels.clear();
         this.trackViewModels.addAll(trackViewModels);
+        for (TrackViewModel trackViewModel: trackViewModels)
+        {
+            tracksMap.put(trackViewModel, trackViewModel.getVotes());
+        }
+
         this.notifyDataSetChanged();
     }
 
@@ -139,6 +149,35 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModels.get(lastClickedPosition));
         AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
         notifyDataSetChanged();
+    }
+
+    public void playFirstTrack()
+    {
+        resetVotes();
+        rearrangeItems();
+        listener.onPlayClicked(trackViewModels.get(lastClickedPosition), lastClickedPosition);
+        trackViewModels.get(lastClickedPosition).setPlaying(true);
+        AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModels.get(lastClickedPosition));
+    }
+
+    private void rearrangeItems()
+    {
+        tracksMap = MapUtils.sortByValue(tracksMap);
+        AudioPlayerManager.INSTANCE.saveTracksMap(tracksMap);
+        trackViewModels = new ArrayList<>(tracksMap.keySet());
+        notifyDataSetChanged();
+    }
+
+    private void resetVotes()
+    {
+        trackViewModels.get(lastClickedPosition).setPlaying(false);
+        TrackViewModel trackViewModel = trackViewModels.get(lastClickedPosition);
+        trackViewModel.setVotes(0);
+        PartyManager.INSTANCE.updateVotes(trackViewModel);
+        lastClickedPosition = 0;
+        listener.savelastClickedPosition(lastClickedPosition);
+        listener.resetCounter();
+        tracksMap.put(trackViewModel, trackViewModel.getVotes());
     }
 
     //==============================================================================================
@@ -248,20 +287,26 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         void onThumbsUpClicked()
         {
             votes++;
+            trackViewModels.get(getAdapterPosition()).setVotes(votes);
+            tracksMap.put(trackViewModel, votes);
             voteTextView.setText(String.valueOf(votes));
             listener.upVoteTrack(trackViewModels.get(getAdapterPosition()));
+            rearrangeItems();
         }
 
-        @OnClick(R.id.thumbsDownImageView)
-        void onThumbsDownVoteClicked()
-        {
-            if (votes > 0)
-            {
-                votes--;
-                voteTextView.setText(String.valueOf(votes));
-            }
-            listener.downVoteTrack(trackViewModels.get(getAdapterPosition()));
-        }
+//        @OnClick(R.id.thumbsDownImageView)
+//        void onThumbsDownVoteClicked()
+//        {
+//            if (votes > 0)
+//            {
+//                votes--;
+//                trackViewModels.get(getAdapterPosition()).setVotes(votes);
+//                tracksMap.put(trackViewModel, votes);
+//                listener.downVoteTrack(trackViewModels.get(getAdapterPosition()));
+//                rearrangeItems();
+//                voteTextView.setText(String.valueOf(votes));
+//            }
+//        }
     }
 
     //==============================================================================================

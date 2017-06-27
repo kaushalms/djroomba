@@ -72,12 +72,12 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/thumbsDownImageView"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="5dp"
-                android:src="@drawable/ic_thumb_down_white_24dp" />
+            <!--<ImageView-->
+                <!--android:id="@+id/thumbsDownImageView"-->
+                <!--android:layout_width="30dp"-->
+                <!--android:layout_height="30dp"-->
+                <!--android:layout_marginStart="5dp"-->
+                <!--android:src="@drawable/ic_thumb_down_white_24dp" />-->
 
             <TextView
                 android:id="@+id/voteTextView"

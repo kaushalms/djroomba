@@ -18,7 +18,6 @@ import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.models.Party;
-import com.kaushalmandayam.djroomba.models.PartyTrack;
 import com.kaushalmandayam.djroomba.models.TrackViewModel;
 import com.kaushalmandayam.djroomba.screens.PartyList.PartyListActivity;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListActivity;
@@ -61,7 +60,6 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     ProgressBar songProgressBar;
 
     private static final String PARTY_KEY = "PARTY_KEY";
-    private static final String TRACK_ADDED_KEY = "TRACK_ADDED_KEY";
     private Party party;
     public TrackViewModel trackViewModel;
     private PlayListAdapter playListAdapter;
@@ -123,7 +121,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         // Restore progress
         if (AudioPlayerManager.INSTANCE.getCurrentTrackViewModel() != null)
         {
-            setupProgressBar(AudioPlayerManager.INSTANCE.getProgess());
+            setupProgressBar(AudioPlayerManager.INSTANCE.getPlayer().getPlaybackState().positionMs);
         }
     }
 
@@ -168,7 +166,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
                 }
                 else
                 {
-                    presenter.onPlayClicked(trackViewModel.getTrack());
+                    presenter.onPlayClicked(trackViewModel);
                 }
                 resetTimer();
                 setupProgressBar(startTime);
@@ -224,25 +222,23 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     }
 
 
-    private void setupProgressBar(final int timerStartTime)
+    private void setupProgressBar(final long timerStartTime)
     {
-        final int maxSongLength = (int) (AudioPlayerManager.INSTANCE.getCurrentTrackViewModel()
-                .getTrack().duration_ms / MILLISECONDS_PER_SECOND);
-        int counterMaxTime = (maxSongLength - timerStartTime);
+        final long maxSongLength = AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().getTrack().duration_ms;
+        songProgressBar.setMax((int) (maxSongLength/1000));
+
         if (timerStartTime != 0)
         {
-            songProgressBar.setMax(counterMaxTime);
-            songProgressBar.setProgress(timerStartTime);
+            songProgressBar.setProgress((int) (timerStartTime/1000));
         }
         else
         {
-            songProgressBar.setMax(maxSongLength);
             songProgressBar.setProgress(0);
         }
 
-        countDownTimer = new CountDownTimer(counterMaxTime * MILLISECONDS_PER_SECOND, MILLISECONDS_PER_SECOND)
+        countDownTimer = new CountDownTimer(maxSongLength , MILLISECONDS_PER_SECOND)
         {
-            int i = timerStartTime;
+            int i = (int) (timerStartTime/1000);
 
             @Override
             public void onTick(long millisUntilFinished)
@@ -257,8 +253,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             @Override
             public void onFinish()
             {
-                songProgressBar.setProgress(maxSongLength);
-                onNextButtonClicked();
+                songProgressBar.setProgress((int) (maxSongLength/1000));
+                playListAdapter.playFirstTrack();
             }
         };
         countDownTimer.start();
@@ -304,7 +300,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         else
         {
             playListAdapter.playTrack(0);
-            presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().getTrack());
+            presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getCurrentTrackViewModel());
         }
 
         resetTimer();
@@ -336,7 +332,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             pauseMediaImageView.setVisibility(View.GONE);
             playListAdapter.playPreviousTrack(lastClickedPosition);
             lastClickedPosition--;
-            presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTracks().get(lastClickedPosition));
+            presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTrackViewModels().get(lastClickedPosition));
             resetTimer();
             setupProgressBar(startTime);
         }
@@ -354,7 +350,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             lastClickedPosition++;
             if (presenter != null)
             {
-                presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTracks().get(lastClickedPosition));
+                presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTrackViewModels().get(lastClickedPosition));
             }
             else
             {
@@ -392,20 +388,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     @Override
     public void onPlaybackEvent(PlayerEvent playerEvent)
     {
-        // todo move to next song on finish
-
-        if (playerEvent == PlayerEvent.kSpPlaybackNotifyTrackDelivered)
-        {
-            if (lastClickedPosition < AudioPlayerManager.INSTANCE.getTracks().size() - 1)
-            {
-                playMediaImageView.setVisibility(View.VISIBLE);
-                pauseMediaImageView.setVisibility(View.GONE);
-
-                playListAdapter.playNextTrack(lastClickedPosition);
-                lastClickedPosition++;
-                presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTracks().get(lastClickedPosition));
-            }
-        }
+        // todo figure out what this does
     }
 
     @Override

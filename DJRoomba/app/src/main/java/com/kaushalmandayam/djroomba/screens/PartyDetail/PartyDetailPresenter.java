@@ -137,9 +137,9 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
     }
 
 
-    public void onPlayClicked(Track track)
+    public void onPlayClicked(TrackViewModel trackViewModel)
     {
-        String songUri = track.uri;
+        String songUri = trackViewModel.getTrack().uri;
         AudioPlayerManager.INSTANCE.getPlayer().playUri(operationCallback, songUri, 0, 0);
     }
 
@@ -191,7 +191,6 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
     public void onUpVoteClicked(TrackViewModel trackViewModel)
     {
         int votes = trackViewModel.getVotes();
-        votes++;
         trackViewModel.setVotes(votes);
         PartyManager.INSTANCE.updateVotes(trackViewModel);
     }
@@ -199,10 +198,6 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
     public void onDownVoteClicked(TrackViewModel trackViewModel)
     {
         int votes = trackViewModel.getVotes();
-        if (votes > 0)
-        {
-            votes--;
-        }
         trackViewModel.setVotes(votes);
         PartyManager.INSTANCE.updateVotes(trackViewModel);
     }
