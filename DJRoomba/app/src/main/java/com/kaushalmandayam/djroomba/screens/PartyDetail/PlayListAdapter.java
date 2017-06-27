@@ -56,15 +56,6 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
 
     public void setData(List<TrackViewModel> trackViewModels)
     {
-        AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
-        this.tracks.clear();
-        this.trackViewModels.clear();
-        this.trackViewModels.addAll(trackViewModels);
-        this.notifyDataSetChanged();
-    }
-
-    public void setTrackViewModels(List<TrackViewModel> trackViewModels)
-    {
         this.tracks.clear();
         this.trackViewModels.clear();
         this.trackViewModels.addAll(trackViewModels);
@@ -164,8 +155,11 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         ImageView pauseImageView;
         @BindView(R.id.playImageView)
         ImageView playImageView;
+        @BindView(R.id.voteTextView)
+        TextView voteTextView;
 
         private TrackViewModel trackViewModel;
+        private int votes;
 
         public PlaylistViewHolder(View itemView)
         {
@@ -176,6 +170,8 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         public void load(TrackViewModel trackViewModel)
         {
             this.trackViewModel = trackViewModel;
+            votes = trackViewModel.getVotes();
+            voteTextView.setText(String.valueOf(trackViewModel.getVotes()));
             if (trackViewModel.isPlaying())
             {
                 lastClickedPosition = trackViewModels.lastIndexOf(trackViewModel);
@@ -199,7 +195,6 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         {
             return trackName.split("\\(")[0];
         }
-
 
         private String getArtistNames(Track track)
         {
@@ -252,12 +247,19 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         @OnClick(R.id.thumbsUpImageView)
         void onThumbsUpClicked()
         {
-           listener.upVoteTrack(trackViewModels.get(getAdapterPosition()));
+            votes++;
+            voteTextView.setText(String.valueOf(votes));
+            listener.upVoteTrack(trackViewModels.get(getAdapterPosition()));
         }
 
         @OnClick(R.id.thumbsDownImageView)
         void onThumbsDownVoteClicked()
         {
+            if (votes > 0)
+            {
+                votes--;
+                voteTextView.setText(String.valueOf(votes));
+            }
             listener.downVoteTrack(trackViewModels.get(getAdapterPosition()));
         }
     }

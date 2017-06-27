@@ -32,7 +32,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import kaaes.spotify.webapi.android.models.Track;
+
 
 /**
  * Screen to display a party
@@ -68,7 +68,6 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     private int lastClickedPosition;
     private CountDownTimer countDownTimer;
     private int startTime;
-    private PartyTrack track;
     public static final int MILLISECONDS_PER_SECOND = 1000;
 
     //==============================================================================================
@@ -212,22 +211,13 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             @Override
             public void upVoteTrack(TrackViewModel trackViewModel)
             {
-                int votes = trackViewModel.getVotes();
-                votes++;
-                trackViewModel.setVotes(votes);
-                PartyManager.INSTANCE.updateVotes(trackViewModel);
+                presenter.onUpVoteClicked(trackViewModel);
             }
 
             @Override
             public void downVoteTrack(TrackViewModel trackViewModel)
             {
-                int votes = trackViewModel.getVotes();
-                if (votes > 0)
-                {
-                    votes--;
-                }
-                trackViewModel.setVotes(votes);
-                PartyManager.INSTANCE.updateVotes(trackViewModel);
+                presenter.onDownVoteClicked(trackViewModel);
             }
         });
         playlistRecyclerView.setAdapter(playListAdapter);
@@ -272,7 +262,6 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             }
         };
         countDownTimer.start();
-
     }
 
     private void saveTrackViewModel(TrackViewModel trackViewModel)
@@ -439,7 +428,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         }
         else
         {
-            playListAdapter.setTrackViewModels(AudioPlayerManager.INSTANCE.getTrackViewModels());
+            playListAdapter.setData(AudioPlayerManager.INSTANCE.getTrackViewModels());
         }
     }
 }

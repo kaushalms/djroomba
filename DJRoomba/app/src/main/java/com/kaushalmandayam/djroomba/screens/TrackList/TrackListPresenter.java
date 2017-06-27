@@ -8,6 +8,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.kaushalmandayam.djroomba.Utils.MapUtils;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.managers.PartyManager;
@@ -108,7 +109,6 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
             {
                 saveTracks(dataSnapshot);
                 getTracks();
-
             }
 
             @Override
@@ -130,6 +130,7 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
     {
         final List<PartyTrack> partyTracks;
         final List<TrackViewModel> trackViewModels = new ArrayList<>();
+        final Map<TrackViewModel, Integer> tracksMap = new HashMap<>();
         spotifyService = LoginManager.INSTANCE.getService();
 
         if (PartyManager.INSTANCE.getTrackMap() != null)
@@ -151,8 +152,9 @@ class TrackListPresenter extends BasePresenter<TrackListPresenter.TrackListView>
                             trackViewModel.setVotes(partyTrack.votes);
 
                             trackViewModels.add(trackViewModel);
+                            tracksMap.put(trackViewModel, trackViewModel.getVotes());
                         }
-                        AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
+                        AudioPlayerManager.INSTANCE.saveTracksMap(MapUtils.sortByValue(tracksMap));
 
                         if (view != null)
                         {

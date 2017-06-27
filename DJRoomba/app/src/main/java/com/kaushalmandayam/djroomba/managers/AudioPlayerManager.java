@@ -4,7 +4,9 @@ import com.kaushalmandayam.djroomba.models.TrackViewModel;
 import com.spotify.sdk.android.player.Error;
 import com.spotify.sdk.android.player.Player;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import kaaes.spotify.webapi.android.models.Track;
 
@@ -27,6 +29,7 @@ public enum AudioPlayerManager
     private TrackViewModel currentTrackViewModel;
     private List<TrackViewModel> trackViewModels;
     private int progress;
+    private Map<TrackViewModel, Integer> tracksMap;
 
     //==============================================================================================
     // Class Instance Methods
@@ -35,11 +38,6 @@ public enum AudioPlayerManager
     public List<TrackViewModel> getTrackViewModels()
     {
         return trackViewModels;
-    }
-
-    public void setTracks(List<Track> tracks)
-    {
-        this.tracks = tracks;
     }
 
     public Player getPlayer()
@@ -106,4 +104,9 @@ public enum AudioPlayerManager
         this.progress = pregress;
     }
 
+    public void saveTracksMap(Map<TrackViewModel, Integer> tracksMap)
+    {
+        this.tracksMap = tracksMap;
+        trackViewModels = new ArrayList<>(tracksMap.keySet());
+    }
 }

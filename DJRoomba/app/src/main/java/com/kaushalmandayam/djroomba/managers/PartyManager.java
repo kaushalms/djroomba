@@ -24,9 +24,6 @@ public enum PartyManager
 
     private Party party;
     private Map<String, Party> partyMap = new HashMap<>();
-
-
-
     private Map<String, PartyTrack> trackMap = new HashMap<>();
 
     //==============================================================================================
@@ -125,6 +122,6 @@ public enum PartyManager
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put(trackViewModel.getTrack().id, trackValues);
 
-        trackNodeReference.setValue(childUpdates);
+        trackNodeReference.updateChildren(childUpdates);
     }
 }

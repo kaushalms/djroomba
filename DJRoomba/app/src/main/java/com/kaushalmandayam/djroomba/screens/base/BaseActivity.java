@@ -49,7 +49,6 @@ public abstract class BaseActivity<T> extends AppCompatActivity
     public void onResume()
     {
         super.onResume();
-        refreshSpotifyToken();
     }
 
     @Override
@@ -75,11 +74,6 @@ public abstract class BaseActivity<T> extends AppCompatActivity
     //==============================================================================================
     // Class Instance Methods
     //==============================================================================================
-
-    private void refreshSpotifyToken()
-    {
-
-    }
 
     protected void showToast(String message)
     {

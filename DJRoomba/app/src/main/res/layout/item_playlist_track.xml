@@ -76,9 +76,18 @@
                 android:id="@+id/thumbsDownImageView"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginEnd="20dp"
                 android:layout_marginStart="5dp"
                 android:src="@drawable/ic_thumb_down_white_24dp" />
+
+            <TextView
+                android:id="@+id/voteTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:layout_margin="8dp"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                tools:text="22" />
 
             <ImageView
                 android:id="@+id/thumbsUpImageView"

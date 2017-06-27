@@ -10,6 +10,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.kaushalmandayam.djroomba.DjRoombaApplication;
+import com.kaushalmandayam.djroomba.Utils.MapUtils;
 import com.kaushalmandayam.djroomba.managers.AudioPlayerManager;
 import com.kaushalmandayam.djroomba.managers.LoginManager;
 import com.kaushalmandayam.djroomba.managers.PartyManager;
@@ -25,7 +26,9 @@ import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
@@ -58,17 +61,18 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
 
     public void getPartyTracks(final Party party)
     {
-        DatabaseReference tracksNodeReference = FirebaseDatabase.getInstance()
+        final DatabaseReference tracksNodeReference = FirebaseDatabase.getInstance()
                 .getReference()
                 .child("parties/" + party.getPartyId()+"/tracks");
 
-        tracksNodeReference.addValueEventListener(new ValueEventListener()
+        ValueEventListener valueEventListener = new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
                 saveTracks(dataSnapshot);
                 getTracks();
+                tracksNodeReference.removeEventListener(this);
             }
 
             @Override
@@ -76,7 +80,10 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
             {
                 Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
             }
-        });
+        };
+
+        tracksNodeReference.addValueEventListener(valueEventListener);
+
     }
 
     private void saveTracks(DataSnapshot tracksDataSnapshot)
@@ -88,6 +95,7 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
     {
         final List<PartyTrack> partyTracks;
         final List<TrackViewModel> trackViewModels = new ArrayList<>();
+        final Map<TrackViewModel, Integer> tracksMap = new HashMap<>();
         spotifyService = LoginManager.INSTANCE.getService();
 
         if (PartyManager.INSTANCE.getTrackMap() != null)
@@ -109,12 +117,13 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
                             trackViewModel.setVotes(partyTrack.votes);
 
                             trackViewModels.add(trackViewModel);
+                            tracksMap.put(trackViewModel, trackViewModel.getVotes());
                         }
-                        AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
+                        AudioPlayerManager.INSTANCE.saveTracksMap(MapUtils.sortByValue(tracksMap));
 
                         if (view != null)
                         {
-                            view.showTracks(trackViewModels);
+                            view.showTracks(AudioPlayerManager.INSTANCE.getTrackViewModels());
                         }
                     }
                 });
@@ -177,6 +186,25 @@ public class PartyDetailPresenter extends BasePresenter<PartyDetailPresenter.Par
                 Log.e("LoginActivity", "Could not initialize player: " + throwable.getMessage());
             }
         });
+    }
+
+    public void onUpVoteClicked(TrackViewModel trackViewModel)
+    {
+        int votes = trackViewModel.getVotes();
+        votes++;
+        trackViewModel.setVotes(votes);
+        PartyManager.INSTANCE.updateVotes(trackViewModel);
+    }
+
+    public void onDownVoteClicked(TrackViewModel trackViewModel)
+    {
+        int votes = trackViewModel.getVotes();
+        if (votes > 0)
+        {
+            votes--;
+        }
+        trackViewModel.setVotes(votes);
+        PartyManager.INSTANCE.updateVotes(trackViewModel);
     }
 
 
