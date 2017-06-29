@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              app:layout_scrollFlags="scroll|enterAlways"
+              android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary_dark"
-        android:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar">
+        android:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="8dp"
-            android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="5dp"
             android:background="@color/primary"
             android:orientation="horizontal">
@@ -34,8 +35,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_margin="10dp"
-                    android:src="@drawable/ic_music_note_white_24dp"
-                    />
+                    android:src="@drawable/ic_music_note_white_24dp" />
 
                 <TextView
                     android:id="@+id/searchTextView"
@@ -48,17 +48,17 @@
                     android:textStyle="bold" />
 
                 <EditText
-                    android:maxLines="1"
-                    android:textCursorDrawable="@color/white"
-                    android:background="@android:color/transparent"
                     android:id="@+id/searchEditText"
-                    android:layout_toEndOf="@+id/musicNoteImageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_toEndOf="@+id/musicNoteImageView"
                     android:layout_weight="1"
+                    android:background="@android:color/transparent"
                     android:focusableInTouchMode="true"
-                    android:textColor="@color/white"
+                    android:maxLines="1"
                     android:paddingBottom="4dp"
+                    android:textColor="@color/white"
+                    android:textCursorDrawable="@color/white"
                     android:visibility="gone" />
 
             </RelativeLayout>
@@ -90,6 +90,5 @@
         </LinearLayout>
 
     </android.support.v7.widget.Toolbar>
-
 
 </LinearLayout>

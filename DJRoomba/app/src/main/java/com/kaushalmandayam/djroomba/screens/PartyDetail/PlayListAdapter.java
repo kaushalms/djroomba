@@ -156,8 +156,8 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
         resetVotes();
         rearrangeItems();
         listener.onPlayClicked(trackViewModels.get(lastClickedPosition), lastClickedPosition);
-        trackViewModels.get(lastClickedPosition).setPlaying(true);
-        AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModels.get(lastClickedPosition));
+        trackViewModels.get(0).setPlaying(true);
+        AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModels.get(0));
     }
 
     private void rearrangeItems()
@@ -294,19 +294,6 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
             rearrangeItems();
         }
 
-//        @OnClick(R.id.thumbsDownImageView)
-//        void onThumbsDownVoteClicked()
-//        {
-//            if (votes > 0)
-//            {
-//                votes--;
-//                trackViewModels.get(getAdapterPosition()).setVotes(votes);
-//                tracksMap.put(trackViewModel, votes);
-//                listener.downVoteTrack(trackViewModels.get(getAdapterPosition()));
-//                rearrangeItems();
-//                voteTextView.setText(String.valueOf(votes));
-//            }
-//        }
     }
 
     //==============================================================================================

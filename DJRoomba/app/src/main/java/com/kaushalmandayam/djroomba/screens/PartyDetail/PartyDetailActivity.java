@@ -9,7 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
@@ -58,6 +60,10 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     ImageView playMediaImageView;
     @BindView(R.id.songProgressBar)
     ProgressBar songProgressBar;
+    @BindView(R.id.songTitleLayout)
+    LinearLayout songTitleLayout;
+    @BindView(R.id.songTitleTextView)
+    TextView songTitleTextView;
 
     private static final String PARTY_KEY = "PARTY_KEY";
     private Party party;
@@ -122,7 +128,9 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         if (AudioPlayerManager.INSTANCE.getCurrentTrackViewModel() != null)
         {
             setupProgressBar(AudioPlayerManager.INSTANCE.getPlayer().getPlaybackState().positionMs);
+            songTitleLayout.setVisibility(View.VISIBLE);
         }
+
     }
 
 
@@ -159,7 +167,12 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             @Override
             public void onPlayClicked(TrackViewModel trackViewModel, int lastClickedPosition)
             {
+                songTitleLayout.setVisibility(View.VISIBLE);
                 saveTrackViewModel(trackViewModel);
+                if (presenter == null)
+                {
+                    attachPresenter(new PartyDetailPresenter(), PartyDetailActivity.this);
+                }
                 if (trackViewModel.isPlaying())
                 {
                     presenter.onPlayerResumed();
@@ -171,6 +184,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
                 resetTimer();
                 setupProgressBar(startTime);
                 saveLastPlayedPosition(lastClickedPosition);
+                songTitleTextView.setText(" " + trackViewModel.getTrack().name.split("\\(")[0]);
                 playMediaImageView.setVisibility(View.GONE);
                 pauseMediaImageView.setVisibility(View.VISIBLE);
             }
@@ -204,6 +218,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             public void resetCounter()
             {
                 startTime = 0;
+                resetTimer();
             }
 
             @Override
@@ -254,6 +269,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             public void onFinish()
             {
                 songProgressBar.setProgress((int) (maxSongLength/1000));
+                resetTimer();
                 playListAdapter.playFirstTrack();
             }
         };
@@ -292,6 +308,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     @OnClick(R.id.playMediaImageView)
     void onMediaPlayClicked()
     {
+        songTitleLayout.setVisibility(View.VISIBLE);
         if (trackViewModel != null)
         {
             presenter.onPlayerResumed();
@@ -326,13 +343,20 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     @OnClick(R.id.previousImageView)
     void onPreviousButtonClicked()
     {
+        startTime = 0;
         if (lastClickedPosition > 0)
         {
             playMediaImageView.setVisibility(View.VISIBLE);
             pauseMediaImageView.setVisibility(View.GONE);
             playListAdapter.playPreviousTrack(lastClickedPosition);
             lastClickedPosition--;
-            presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTrackViewModels().get(lastClickedPosition));
+            songTitleTextView.setText(" " + AudioPlayerManager.INSTANCE.getTrackViewModels()
+                    .get(lastClickedPosition).getTrack().name.split("\\(")[0]);
+            if (presenter != null)
+            {
+                presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTrackViewModels().get(lastClickedPosition));
+            }
+
             resetTimer();
             setupProgressBar(startTime);
         }
@@ -343,11 +367,16 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     {
         if (lastClickedPosition < AudioPlayerManager.INSTANCE.getTrackViewModels().size() - 1)
         {
+            resetTimer();
+            setupProgressBar(startTime);
+
             playMediaImageView.setVisibility(View.VISIBLE);
             pauseMediaImageView.setVisibility(View.GONE);
 
             playListAdapter.playNextTrack(lastClickedPosition);
             lastClickedPosition++;
+            songTitleTextView.setText(" " + AudioPlayerManager.INSTANCE.getTrackViewModels()
+                    .get(lastClickedPosition).getTrack().name.split("\\(")[0]);
             if (presenter != null)
             {
                 presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTrackViewModels().get(lastClickedPosition));
@@ -357,9 +386,6 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
                 // play in background, when you are on a different activity
                 AudioPlayerManager.INSTANCE.playTrack(lastClickedPosition);
             }
-
-            resetTimer();
-            setupProgressBar(startTime);
         }
     }
 
