@@ -61,6 +61,8 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
 
     public void setData(List<TrackViewModel> trackViewModels)
     {
+        // todo restore state when reloading adapter and add listener to tracks node.
+        
         this.tracks.clear();
         this.trackViewModels.clear();
         this.trackViewModels.addAll(trackViewModels);

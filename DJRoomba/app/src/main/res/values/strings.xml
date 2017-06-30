@@ -16,4 +16,5 @@
     <string name="party_name_empty">Party name cannot be empty</string>
     <string name="loading_playlist">Loading your playlist</string>
     <string name="now_playing">Now Playing : </string>
+    <string name="song_name">\u0020%1$s</string>
 </resources>

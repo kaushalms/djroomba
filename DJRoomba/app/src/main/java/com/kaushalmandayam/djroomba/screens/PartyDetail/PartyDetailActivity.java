@@ -103,6 +103,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         Gson gson = new Gson();
         showProgressDialog(getString(R.string.loading_playlist));
         party = gson.fromJson(bundle.getString(PARTY_KEY), Party.class);
+
+        resetTimer();
         setupTrackAdapter();
 
         // Get a fresh access token and update the view;
@@ -112,7 +114,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
 
         // Reset current song if you join a new party
         if (PartyManager.INSTANCE.getParty() != null
-            && !party.getPartyId().equals(PartyManager.INSTANCE.getParty().getPartyId()))
+                && !party.getPartyId().equals(PartyManager.INSTANCE.getParty().getPartyId()))
         {
             AudioPlayerManager.INSTANCE.clearTracks();
             AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(null);
@@ -123,14 +125,6 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         {
             PartyManager.INSTANCE.setParty(party);
         }
-
-        // Restore progress
-        if (AudioPlayerManager.INSTANCE.getCurrentTrackViewModel() != null)
-        {
-            setupProgressBar(AudioPlayerManager.INSTANCE.getPlayer().getPlaybackState().positionMs);
-            songTitleLayout.setVisibility(View.VISIBLE);
-        }
-
     }
 
 
@@ -138,6 +132,26 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     public void onResume()
     {
         super.onResume();
+        // Restore progress
+
+        if (AudioPlayerManager.INSTANCE.getCurrentTrackViewModel() != null)
+        {
+            startTime = AudioPlayerManager.INSTANCE.getPlayer().getPlaybackState().positionMs;
+            if (AudioPlayerManager.INSTANCE.getPlayer().getPlaybackState().isPlaying)
+            {
+                setupProgressBar(startTime);
+            }
+
+            songTitleLayout.setVisibility(View.VISIBLE);
+            String songName = String.format((getResources().getString(R.string.song_name)), AudioPlayerManager.INSTANCE.getTrackViewModels()
+                    .get(lastClickedPosition).getTrack().name.split("\\(")[0]);
+            songTitleTextView.setText(songName);
+        }
+        else
+        {
+            // todo if song has finished in background, set progress bar to 0
+            // setupProgressBar(0);
+        }
     }
 
     @Override
@@ -151,6 +165,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     public void onPause()
     {
         super.onPause();
+        resetTimer();
         LoginManager.INSTANCE.unSubscribeAccessTokenListener(this);
     }
 
@@ -185,7 +200,9 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
 
                 setupProgressBar(startTime);
                 saveLastPlayedPosition(lastClickedPosition);
-                songTitleTextView.setText(" " + trackViewModel.getTrack().name.split("\\(")[0]);
+                String songName = String.format((getResources().getString(R.string.song_name)), trackViewModel.getTrack().name.split("\\(")[0]);
+                songTitleTextView.setText(songName);
+
                 playMediaImageView.setVisibility(View.GONE);
                 pauseMediaImageView.setVisibility(View.VISIBLE);
             }
@@ -241,21 +258,28 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
 
     private void setupProgressBar(final long timerStartTime)
     {
-        final long maxSongLength = AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().getTrack().duration_ms;
-        songProgressBar.setMax((int) (maxSongLength/1000));
+        long maxSongLength = 0;
+
+        if (AudioPlayerManager.INSTANCE.getCurrentTrackViewModel() != null)
+        {
+            maxSongLength = AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().getTrack().duration_ms;
+        }
+
+        songProgressBar.setMax((int) (maxSongLength / 1000));
 
         if (timerStartTime != 0)
         {
-            songProgressBar.setProgress((int) (timerStartTime/1000));
+            songProgressBar.setProgress((int) (timerStartTime / 1000));
         }
         else
         {
             songProgressBar.setProgress(0);
         }
 
-        countDownTimer = new CountDownTimer(maxSongLength , MILLISECONDS_PER_SECOND)
+        final long finalMaxSongLength = maxSongLength;
+        countDownTimer = new CountDownTimer(finalMaxSongLength, MILLISECONDS_PER_SECOND)
         {
-            int i = (int) (timerStartTime/1000);
+            int i = (int) (timerStartTime / 1000);
 
             @Override
             public void onTick(long millisUntilFinished)
@@ -264,13 +288,14 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
                 i++;
                 startTime = i * MILLISECONDS_PER_SECOND;
                 songProgressBar.setProgress(i);
-                AudioPlayerManager.INSTANCE.setProgress(i);
             }
 
             @Override
             public void onFinish()
             {
-                songProgressBar.setProgress((int) (maxSongLength/1000));
+                songProgressBar.setProgress((int) (finalMaxSongLength / 1000));
+                AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(null);
+                startTime = 0;
                 resetTimer();
                 playListAdapter.playFirstTrack();
             }
@@ -353,8 +378,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             pauseMediaImageView.setVisibility(View.GONE);
             playListAdapter.playPreviousTrack(lastClickedPosition);
             lastClickedPosition--;
-            songTitleTextView.setText(" " + AudioPlayerManager.INSTANCE.getTrackViewModels()
-                    .get(lastClickedPosition).getTrack().name.split("\\(")[0]);
+            String songName = String.format((getResources().getString(R.string.song_name)), trackViewModel.getTrack().name.split("\\(")[0]);
+            songTitleTextView.setText(songName);
             if (presenter != null)
             {
                 presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTrackViewModels().get(lastClickedPosition));
@@ -378,8 +403,8 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
 
             playListAdapter.playNextTrack(lastClickedPosition);
             lastClickedPosition++;
-            songTitleTextView.setText(" " + AudioPlayerManager.INSTANCE.getTrackViewModels()
-                    .get(lastClickedPosition).getTrack().name.split("\\(")[0]);
+            String songName = String.format((getResources().getString(R.string.song_name)), trackViewModel.getTrack().name.split("\\(")[0]);
+            songTitleTextView.setText(songName);
             if (presenter != null)
             {
                 presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getTrackViewModels().get(lastClickedPosition));
@@ -417,7 +442,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     @Override
     public void onPlaybackEvent(PlayerEvent playerEvent)
     {
-        // todo figure out what this does
+       // do nothing
     }
 
     @Override

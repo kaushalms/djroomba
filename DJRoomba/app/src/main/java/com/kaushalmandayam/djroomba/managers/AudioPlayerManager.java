@@ -28,7 +28,6 @@ public enum AudioPlayerManager
     private List<Track> tracks;
     private TrackViewModel currentTrackViewModel;
     private List<TrackViewModel> trackViewModels;
-    private int progress;
     private Map<TrackViewModel, Integer> tracksMap;
 
     //==============================================================================================
@@ -94,15 +93,6 @@ public enum AudioPlayerManager
         }, tracks.get(lastClickedPosition).uri, 0, 0);
     }
 
-    public int getProgess()
-    {
-        return progress;
-    }
-
-    public void setProgress(int pregress)
-    {
-        this.progress = pregress;
-    }
 
     public void saveTracksMap(Map<TrackViewModel, Integer> tracksMap)
     {
