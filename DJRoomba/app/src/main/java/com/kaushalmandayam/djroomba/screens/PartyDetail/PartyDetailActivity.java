@@ -71,7 +71,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
     private PlayListAdapter playListAdapter;
     private int lastClickedPosition;
     private CountDownTimer countDownTimer;
-    private int startTime;
+    private long startTime;
     public static final int MILLISECONDS_PER_SECOND = 1000;
 
     //==============================================================================================
@@ -179,9 +179,10 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
                 }
                 else
                 {
+                    startTime = 0;
                     presenter.onPlayClicked(trackViewModel);
                 }
-                resetTimer();
+
                 setupProgressBar(startTime);
                 saveLastPlayedPosition(lastClickedPosition);
                 songTitleTextView.setText(" " + trackViewModel.getTrack().name.split("\\(")[0]);
@@ -195,6 +196,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
                 if (countDownTimer != null)
                 {
                     countDownTimer.cancel();
+                    countDownTimer = null;
                 }
                 presenter.onPauseClicked();
                 playMediaImageView.setVisibility(View.VISIBLE);
@@ -217,7 +219,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             @Override
             public void resetCounter()
             {
-                startTime = 0;
+
                 resetTimer();
             }
 
@@ -260,7 +262,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
             {
                 Log.v("Log_tag", "Tick of Progress" + i + millisUntilFinished);
                 i++;
-                startTime = i;
+                startTime = i * MILLISECONDS_PER_SECOND;
                 songProgressBar.setProgress(i);
                 AudioPlayerManager.INSTANCE.setProgress(i);
             }
@@ -316,11 +318,11 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         }
         else
         {
+            startTime = 0;
             playListAdapter.playTrack(0);
             presenter.onPlayClicked(AudioPlayerManager.INSTANCE.getCurrentTrackViewModel());
         }
 
-        resetTimer();
         setupProgressBar(startTime);
         playMediaImageView.setVisibility(View.GONE);
         pauseMediaImageView.setVisibility(View.VISIBLE);
@@ -332,6 +334,7 @@ public class PartyDetailActivity extends BaseActivity<PartyDetailPresenter> impl
         if (countDownTimer != null)
         {
             countDownTimer.cancel();
+            countDownTimer = null;
         }
 
         playMediaImageView.setVisibility(View.VISIBLE);

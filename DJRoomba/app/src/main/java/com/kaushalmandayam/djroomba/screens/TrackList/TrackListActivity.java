@@ -20,9 +20,7 @@ import com.example.kaushalmandayam.djroomba.R;
 import com.google.gson.Gson;
 import com.kaushalmandayam.djroomba.managers.PartyManager;
 import com.kaushalmandayam.djroomba.models.Party;
-import com.kaushalmandayam.djroomba.models.PartyTrack;
 import com.kaushalmandayam.djroomba.screens.PartyDetail.PartyDetailActivity;
-import com.kaushalmandayam.djroomba.screens.PartyList.PartyListActivity;
 import com.kaushalmandayam.djroomba.screens.base.BaseActivity;
 import com.kaushalmandayam.djroomba.screens.TrackList.TrackListPresenter.TrackListView;
 
@@ -34,7 +32,11 @@ import kaaes.spotify.webapi.android.models.Track;
 
 
 /**
- * Created by kaushalmandayam on 5/7/17.
+ * Screen to display track search results
+ *
+ * Created on 5/7/17.
+ *
+ * @author Kaushal Mandayam
  */
 
 public class TrackListActivity extends BaseActivity<TrackListPresenter> implements TrackListView
@@ -133,7 +135,7 @@ public class TrackListActivity extends BaseActivity<TrackListPresenter> implemen
             }
         });
     }
-    
+
     @Override
     public void onBackPressed()
     {

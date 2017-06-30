@@ -124,6 +124,7 @@ public class PlayListAdapter extends RecyclerView.Adapter<PlayListAdapter.Playli
     public void playTrack(int lastClickedPosition)
     {
         trackViewModels.get(lastClickedPosition).setPlaying(true);
+        AudioPlayerManager.INSTANCE.getCurrentTrackViewModel().setPlaying(true);
         AudioPlayerManager.INSTANCE.setTrackViewModels(trackViewModels);
         AudioPlayerManager.INSTANCE.setCurrentTrackViewModel(trackViewModels.get(lastClickedPosition));
         notifyItemChanged(lastClickedPosition);
